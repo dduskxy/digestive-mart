@@ -1,0 +1,74 @@
+.bg-welcome {
+  background-color: #FF9A9E; /* fallback */
+  background-image: url('/assets/welcome_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-supermarket {
+  background-color: #6a11cb; /* fallback */
+  background-image: url('/assets/supermarket_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-digestion {
+  background-color: #FF6347; /* fallback */
+  background-image: url('/assets/digestion_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-summary {
+  background-color: #FFD700; /* fallback */
+  background-image: url('/assets/summary_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-hygiene {
+  background-color: #87CEEB;
+  background-image: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-hygiene::before, .bg-hygiene::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.bg-hygiene::before {
+  width: 120px;
+  height: 40px;
+  top: 20%;
+  left: 10%;
+  box-shadow: 30px -15px 0 10px white, 60px 5px 0 5px white;
+  animation: float 6s infinite ease-in-out;
+}
+
+.bg-hygiene::after {
+  width: 100px;
+  height: 35px;
+  top: 40%;
+  right: 15%;
+  box-shadow: 25px -10px 0 8px white, 50px 5px 0 4px white;
+  animation: float 8s infinite ease-in-out;
+}
+
+.bg-welcome-overlay {
+  background: linear-gradient(135deg, rgba(255, 154, 158, 0.8) 0%, rgba(254, 207, 239, 0.8) 100%);
+}
+
+.bg-celebration {
+  background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00, #FFD700);
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+}

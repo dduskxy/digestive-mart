@@ -5,5 +5,12 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
-  base: './', // For GitHub pages
+  resolve: {
+    preserveSymlinks: true,
+  },
+  server: {
+    fs: {
+      strict: false
+    }
+  }
 });
