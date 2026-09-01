@@ -43,6 +43,7 @@ export function renderCartModal(onClose: () => void): HTMLElement {
       
       const healthColors = {
         excellent: 'bg-green-500/20 border-green-500/50',
+        good: 'bg-cyan-500/20 border-cyan-500/50',
         moderate: 'bg-blue-500/20 border-blue-500/50',
         avoid: 'bg-red-500/20 border-red-500/50'
       };

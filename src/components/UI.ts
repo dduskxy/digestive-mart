@@ -55,14 +55,16 @@ function Icon(iconName: string, className: string = 'w-6 h-6'): HTMLElement {
 }
 
 // Create a health tag badge element
-export function HealthTag(tag: 'excellent' | 'moderate' | 'avoid'): HTMLElement {
+export function HealthTag(tag: 'excellent' | 'good' | 'moderate' | 'avoid'): HTMLElement {
   const styles = {
     excellent: 'bg-green-500/20 text-green-400 border-green-500/30',
+    good: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
     moderate: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     avoid: 'bg-red-500/20 text-red-400 border-red-500/30'
   };
   const labels = {
     excellent: '✅ ดีเยี่ยม',
+    good: '👍 ดี',
     moderate: '👌 พอใช้',
     avoid: '⚠️ ควรเลี่ยง'
   };

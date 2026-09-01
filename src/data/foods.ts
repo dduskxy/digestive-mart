@@ -1,5 +1,5 @@
-type FoodCategory = 'fruit' | 'vegetable' | 'protein' | 'carb' | 'fat' | 'drink' | 'snack';
-type HealthTag = 'excellent' | 'moderate' | 'avoid';
+type FoodCategory = 'fruit' | 'vegetable' | 'protein' | 'carb' | 'fat' | 'drink' | 'snack' | 'dairy';
+type HealthTag = 'excellent' | 'good' | 'moderate' | 'avoid';
 
 export interface FoodItem {
   id: string;
@@ -1068,3 +1068,59 @@ export const foods: FoodItem[] = [
     "digestTip": "อาจทำให้กระเพาะและลำไส้ทำงานหนัก หากกินเยอะเกินไป"
   }
 ];
+
+/**
+ * Helper functions for food selection
+ */
+export function getFoodsByCategory(category: FoodCategory): FoodItem[] {
+  return foods.filter((food) => food.category === category);
+}
+
+export function getFoodById(id: string): FoodItem | undefined {
+  return foods.find((food) => food.id === id);
+}
+
+export function getFoodsByHealthTag(tag: HealthTag): FoodItem[] {
+  return foods.filter((food) => food.healthTag === tag);
+}
+
+export function calculateMealNutrition(foodIds: string[]): {
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+  totalFiber: number;
+  averageGiIndex: number;
+} {
+  if (foodIds.length === 0) {
+    return {
+      totalCalories: 0,
+      totalProtein: 0,
+      totalCarbs: 0,
+      totalFat: 0,
+      totalFiber: 0,
+      averageGiIndex: 0,
+    };
+  }
+
+  const result = foodIds.reduce(
+    (acc, id) => {
+      const food = getFoodById(id);
+      if (!food) return acc;
+      return {
+        totalCalories: acc.totalCalories + food.calories,
+        totalProtein: acc.totalProtein + food.proteinG,
+        totalCarbs: acc.totalCarbs + food.carbsG,
+        totalFat: acc.totalFat + food.fatG,
+        totalFiber: acc.totalFiber + food.fiberG,
+        sumGiIndex: acc.sumGiIndex + food.giIndex,
+      };
+    },
+    { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0, totalFiber: 0, sumGiIndex: 0 }
+  );
+
+  return {
+    ...result,
+    averageGiIndex: Math.round(result.sumGiIndex / foodIds.length),
+  } as any;
+}
