@@ -1,6 +1,7 @@
 import { store } from '../state/store';
 import { el, Button } from '../components/UI';
 import { SoundManager } from '../audio/SoundManager';
+import { ConsentModal } from '../components/ConsentModal';
 
 export default function renderWelcome(): HTMLElement {
   // Main container
@@ -89,9 +90,9 @@ export default function renderWelcome(): HTMLElement {
   for (let i = 0; i < 20; i++) {
     const food = el('div', 'floating-item text-4xl md:text-6xl drop-shadow-lg');
     food.textContent = foods[Math.floor(Math.random() * foods.length)];
-    food.style.left = `\${Math.random() * 100}%`;
-    food.style.animationDuration = `\${10 + Math.random() * 15}s`;
-    food.style.animationDelay = `\${Math.random() * -20}s`;
+    food.style.left = `${Math.random() * 100}%`;
+    food.style.animationDuration = `${10 + Math.random() * 15}s`;
+    food.style.animationDelay = `${Math.random() * -20}s`;
     container.appendChild(food);
   }
 
@@ -151,7 +152,7 @@ export default function renderWelcome(): HTMLElement {
   subText.split('').forEach((char, i) => {
     const span = el('span', 'animate-wavy inline-block');
     span.textContent = char;
-    span.style.animationDelay = `\${i * 0.1}s`;
+    span.style.animationDelay = `${i * 0.1}s`;
     if(char === ' ') span.innerHTML = '&nbsp;';
     subtitleContainer.appendChild(span);
   });
@@ -182,15 +183,26 @@ export default function renderWelcome(): HTMLElement {
       const p = el('div', 'particle');
       p.style.left = `\${e.clientX - rect.left}px`;
       p.style.top = `\${e.clientY - rect.top}px`;
-      p.style.setProperty('--tx', `\${(Math.random() - 0.5) * 200}px`);
-      p.style.setProperty('--ty', `\${(Math.random() - 0.5) * 200}px`);
+      p.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
+      p.style.setProperty('--ty', `${(Math.random() - 0.5) * 200}px`);
       startBtn.appendChild(p);
     }
     
     setTimeout(() => {
       const name = (nameInput as HTMLInputElement).value.trim() || 'นักผจญภัย';
       store.update({ player: { ...store.state.player, name, avatar: selectedAvatar } });
-      store.setStage('02_Hygiene');
+      
+      // Show ConsentModal FIRST before proceeding to next stage
+      if (!store.state.camera.consentShown) {
+        const consentModal = new ConsentModal(() => {
+          // After consent is handled, move to next stage
+          store.setStage('02_Hygiene');
+        });
+        consentModal.mount();
+      } else {
+        // If consent was already shown in this session, skip it
+        store.setStage('02_Hygiene');
+      }
     }, 600); // wait for burst
   };
   startBtnWrapper.appendChild(startBtn);

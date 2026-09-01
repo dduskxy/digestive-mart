@@ -7,10 +7,18 @@ export interface GameState {
   player: {
     name: string;
     avatar: string;
+    avatarImage?: string; // base64 selfie from camera or null
   };
   cart: FoodItem[];
   settings: {
     volume: number;
+    cameraEnabled: boolean; // global toggle for ALL camera features
+    cameraSensitivity: number; // 0.5 to 2.0, affects gesture detection
+  };
+  camera: {
+    permissionStatus: 'unknown' | 'granted' | 'denied' | 'prompt';
+    consentShown: boolean; // track if ConsentModal has been shown
+    isActive: boolean; // whether camera stream is currently running
   };
   stats: {
     hp: number;
@@ -27,6 +35,9 @@ export interface GameState {
     isRunning: boolean;
   };
   budget: number;
+  hygiene: {
+    cleanlinessScore: number; // 0-100, affects stage 4 difficulty
+  };
 }
 
 class Store {
@@ -42,7 +53,16 @@ class Store {
       player: { name: '', avatar: '👦' },
       cart: [],
       stage: '01_Welcome',
-      settings: { volume: 1 },
+      settings: { 
+        volume: 1,
+        cameraEnabled: false, // default to off until user consents
+        cameraSensitivity: 1.0,
+      },
+      camera: {
+        permissionStatus: 'unknown',
+        consentShown: false,
+        isActive: false,
+      },
       stats: {
         hp: 100,
         xp: 0,
@@ -58,6 +78,9 @@ class Store {
         isRunning: false,
       },
       budget: 1000,
+      hygiene: {
+        cleanlinessScore: 50, // default mid-range; improved by stage 2
+      },
     };
   }
 
@@ -116,6 +139,43 @@ class Store {
 
   setBudget(budget: number) {
     this.update({ budget });
+  }
+
+  // Camera & Settings Management
+  setCameraConsent(consented: boolean) {
+    this.update({
+      settings: { ...this.state.settings, cameraEnabled: consented },
+      camera: { ...this.state.camera, consentShown: true, permissionStatus: consented ? 'granted' : 'denied' },
+    });
+    // Persist to localStorage
+    localStorage.setItem('digestive-mart-camera-consent', JSON.stringify({
+      cameraEnabled: consented,
+      timestamp: Date.now(),
+    }));
+  }
+
+  setCameraPermission(status: 'granted' | 'denied' | 'prompt') {
+    this.update({ camera: { ...this.state.camera, permissionStatus: status } });
+  }
+
+  setConsentShown(shown: boolean) {
+    this.update({ camera: { ...this.state.camera, consentShown: shown } });
+  }
+
+  setCameraActive(active: boolean) {
+    this.update({ camera: { ...this.state.camera, isActive: active } });
+  }
+
+  setCameraSensitivity(sensitivity: number) {
+    this.update({ settings: { ...this.state.settings, cameraSensitivity: Math.max(0.5, Math.min(2.0, sensitivity)) } });
+  }
+
+  setAvatarImage(imageData: string) {
+    this.update({ player: { ...this.state.player, avatarImage: imageData } });
+  }
+
+  updateHygiene(cleanlinessScore: number) {
+    this.update({ hygiene: { cleanlinessScore: Math.max(0, Math.min(100, cleanlinessScore)) } });
   }
 
   reset() {
