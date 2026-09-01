@@ -168,24 +168,24 @@ export class Navbar {
           
           <!-- Left side -->
           <div class="flex items-center gap-4 z-10">
-            <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_\${stageColor}] border-4 border-white bg-white/40 transition-shadow duration-500" style="box-shadow: 0 0 20px \${stageColor};">
-              \${state.player.avatar || '👦'}
+            <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_${stageColor}] border-4 border-white bg-white/40 transition-shadow duration-500" style="box-shadow: 0 0 20px ${stageColor};">
+              ${state.player.avatar || '👦'}
             </div>
             <div class="flex flex-col">
-              <span class="text-white font-black text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] tracking-wide">\${state.player.name || 'Player'}</span>
-              <span class="text-white font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-lg tracking-wider bg-black/30 px-3 py-1 rounded-full mt-1">\${stageName}</span>
+              <span class="text-white font-black text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] tracking-wide">${state.player.name || 'Player'}</span>
+              <span class="text-white font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-lg tracking-wider bg-black/30 px-3 py-1 rounded-full mt-1">${stageName}</span>
             </div>
           </div>
           
           <!-- Center Dots -->
           <div class="flex items-center gap-2 z-10 hidden md:flex bg-black/20 px-6 py-3 rounded-full backdrop-blur-sm border border-white/20 shadow-inner">
-            \${dots}
+            ${dots}
           </div>
 
           <!-- Right Side -->
           <div class="flex items-center gap-4 z-10">
             <button id="btn-sound" class="w-14 h-14 rounded-full bg-white/30 hover:bg-white/50 border-2 border-white/70 transition-all shadow-md flex items-center justify-center text-2xl hover:scale-110 active:scale-95">
-              \${soundIcon}
+              ${soundIcon}
             </button>
             <button id="btn-settings" class="w-14 h-14 rounded-full bg-white/30 hover:bg-white/50 border-2 border-white/70 transition-all shadow-md flex items-center justify-center text-2xl hover:scale-110 active:scale-95">
               ⚙️
@@ -198,10 +198,10 @@ export class Navbar {
         
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-black/30 rounded-b-3xl overflow-hidden border-b-2 border-l-2 border-r-2 border-white/30 backdrop-blur-md shadow-lg">
-          <div class="h-full bg-gradient-to-r from-blue-400 via-green-400 to-yellow-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" style="width: \${progress}%"></div>
+          <div class="h-full bg-gradient-to-r from-blue-400 via-green-400 to-yellow-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" style="width: ${progress}%"></div>
         </div>
       </div>
-      \${modals}
+      ${modals}
     `;
   }
 
