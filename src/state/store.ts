@@ -7,18 +7,11 @@ export interface GameState {
   player: {
     name: string;
     avatar: string;
-    avatarImage?: string; // base64 selfie from camera or null
   };
   cart: FoodItem[];
   settings: {
     volume: number;
-    cameraEnabled: boolean; // global toggle for ALL camera features
-    cameraSensitivity: number; // 0.5 to 2.0, affects gesture detection
-  };
-  camera: {
-    permissionStatus: 'unknown' | 'granted' | 'denied' | 'prompt';
-    consentShown: boolean; // track if ConsentModal has been shown
-    isActive: boolean; // whether camera stream is currently running
+    language: 'th' | 'en'; // Thai or English
   };
   stats: {
     hp: number;
@@ -35,8 +28,10 @@ export interface GameState {
     isRunning: boolean;
   };
   budget: number;
-  hygiene: {
-    cleanlinessScore: number; // 0-100, affects stage 4 difficulty
+  progress: {
+    stageScores: Record<Stage, number>; // 0-100 score for each stage
+    cleanlinessScore: number; // 0-100, affects digestion journey difficulty
+    totalScore: number; // cumulative across all stages
   };
 }
 
@@ -55,13 +50,7 @@ class Store {
       stage: '01_Welcome',
       settings: { 
         volume: 1,
-        cameraEnabled: false, // default to off until user consents
-        cameraSensitivity: 1.0,
-      },
-      camera: {
-        permissionStatus: 'unknown',
-        consentShown: false,
-        isActive: false,
+        language: 'th',
       },
       stats: {
         hp: 100,
@@ -78,8 +67,16 @@ class Store {
         isRunning: false,
       },
       budget: 1000,
-      hygiene: {
-        cleanlinessScore: 50, // default mid-range; improved by stage 2
+      progress: {
+        stageScores: {
+          '01_Welcome': 0,
+          '02_Hygiene': 0,
+          '03_Supermarket': 0,
+          '04_DigestionJourney': 0,
+          '05_SummaryReport': 0,
+        },
+        cleanlinessScore: 50,
+        totalScore: 0,
       },
     };
   }
@@ -141,41 +138,35 @@ class Store {
     this.update({ budget });
   }
 
-  // Camera & Settings Management
-  setCameraConsent(consented: boolean) {
+  // Education & Progress Management
+  setStageScore(stage: Stage, score: number) {
+    const clampedScore = Math.max(0, Math.min(100, score));
     this.update({
-      settings: { ...this.state.settings, cameraEnabled: consented },
-      camera: { ...this.state.camera, consentShown: true, permissionStatus: consented ? 'granted' : 'denied' },
+      progress: {
+        ...this.state.progress,
+        stageScores: { ...this.state.progress.stageScores, [stage]: clampedScore },
+      },
     });
-    // Persist to localStorage
-    localStorage.setItem('digestive-mart-camera-consent', JSON.stringify({
-      cameraEnabled: consented,
-      timestamp: Date.now(),
-    }));
+    this.recalculateTotalScore();
   }
 
-  setCameraPermission(status: 'granted' | 'denied' | 'prompt') {
-    this.update({ camera: { ...this.state.camera, permissionStatus: status } });
+  updateCleanlinessScore(score: number) {
+    this.update({
+      progress: { ...this.state.progress, cleanlinessScore: Math.max(0, Math.min(100, score)) },
+    });
   }
 
-  setConsentShown(shown: boolean) {
-    this.update({ camera: { ...this.state.camera, consentShown: shown } });
+  private recalculateTotalScore() {
+    const scores = Object.values(this.state.progress.stageScores);
+    const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    this.update({
+      progress: { ...this.state.progress, totalScore: Math.round(avg) },
+    });
   }
 
-  setCameraActive(active: boolean) {
-    this.update({ camera: { ...this.state.camera, isActive: active } });
-  }
-
-  setCameraSensitivity(sensitivity: number) {
-    this.update({ settings: { ...this.state.settings, cameraSensitivity: Math.max(0.5, Math.min(2.0, sensitivity)) } });
-  }
-
-  setAvatarImage(imageData: string) {
-    this.update({ player: { ...this.state.player, avatarImage: imageData } });
-  }
-
-  updateHygiene(cleanlinessScore: number) {
-    this.update({ hygiene: { cleanlinessScore: Math.max(0, Math.min(100, cleanlinessScore)) } });
+  setLanguage(lang: 'th' | 'en') {
+    this.update({ settings: { ...this.state.settings, language: lang } });
+    localStorage.setItem('digestive-mart-language', lang);
   }
 
   reset() {

@@ -1,99 +1,154 @@
 # Digestion Mart: The Body Quest (มินิมาร์ทนักย่อยผจญภัย)
 
-An interactive, educational web game teaching digestion and food hygiene to students aged 9–12.
-Built with modern Web Technologies and AI Computer Vision!
+An interactive, educational web game teaching digestion and food hygiene to students aged 9–12 (Thai primary school science curriculum Prathom 4-6).
 
 ## Features
-- 🎮 **5 Interactive Stages**: Welcome, Hygiene, Supermarket, Digestion Journey (5 sub-games), Summary.
-- 📸 **AI Motion Controls**: Powered by `@mediapipe/tasks-vision`! Play with your face and hands using your webcam!
-- ⌨️ **Accessible Fallbacks**: Fully playable using mouse/keyboard if the camera is disabled.
-- 🎨 **Glassmorphism UI**: Beautiful, fully responsive design using Tailwind CSS v4.
-- 🔊 **Synthesized Audio**: Sound effects generated purely via Web Audio API (no external MP3/OGG files!).
-- 🎬 **Camera Consent**: Clear, privacy-first camera permission flow. Everything stays on your device!
+- 🎮 **5 Interactive Learning Stages**: 
+  1. Welcome (avatar selection & introduction)
+  2. Hygiene Challenge (handwashing education)
+  3. Supermarket (nutritional food choices)
+  4. Digestion Journey (5 mini-games simulating digestive process)
+  5. Health Verdict (personalized health report)
+- 📚 **Science-Based Learning**: Each minigame teaches real digestive/nutritional science
+- 🍎 **Food Education**: 50+ Thai foods with accurate nutritional data
+- 🎨 **Engaging UI**: Glassmorphism design, colorful animations, kid-friendly interface
+- 🔊 **Sound Effects**: Generated via Web Audio API (no external audio files)
+- ⌨️ **Fully Keyboard Accessible**: 100% playable with mouse/keyboard only
+- 💾 **Progress Tracking**: Scores saved locally, leaderboard support
 
 ## Tech Stack
 - Vanilla TypeScript
 - Vite
 - Tailwind CSS v4 (with @theme design system)
-- MediaPipe Tasks Vision (FaceLandmarker, HandLandmarker) — lazy-loaded on demand
-- Chart.js (Summary radar chart)
 - Canvas Confetti
 - Web Audio API (all sound synthesis)
+- Zero external asset files (no images, no audio files)
 
 ## Project Architecture
 
-### Phase 1: Project Scaffold & Design System ✅
-- **Global State Store** (`src/state/store.ts`): Centralized game state with reactive updates
-  - Player stats, progress, settings, camera permissions
-  - Persistent localStorage for consent & preferences
-- **Design System** (`src/styles/main.css`): 
-  - Warm, kid-friendly palette (#FFF8F0, #FF8A65, #4DB6AC, #FFD54F, #EF5350, #4E342E)
-  - Rich animations (float, pulse-glow, shake, fade, spin, heartbeat, wiggle, confetti, etc.)
-  - Glassmorphism utilities, 3D buttons, glow effects
-- **CameraInputProvider** (`src/services/CameraInputProvider.ts`): Singleton service for camera management
-  - Lazy-loads MediaPipe models on demand (only when stages actually need them)
-  - Event-driven landmark data delivery
-  - Automatic pause/resume on tab visibility change
-  - Throttled inference loop to balance accuracy & performance
-  - **HARD CONSTRAINT**: Every camera feature has an equally-scorable non-camera fallback
-- **ConsentModal** (`src/components/ConsentModal.ts`): One-time camera permission request
-  - Thai UI explaining camera usage across all stages
-  - Players can opt for non-camera gameplay at any time without losing progress
-  - Settings toggle in Navbar to revisit consent decision
-  - No camera = no data upload, only local avatar/victory images stored
+### Game Flow
+```
+Welcome (Avatar) → Hygiene Challenge → Supermarket → 
+Digestion Journey (5 stages) → Health Verdict → Leaderboard
+```
 
-### Phase 2: Stage 1 (Welcome) + Stage 2 (Hygiene) + Shared Components [TODO]
-### Phase 3: Stage 3 (Supermarket) + Food Database [TODO]
-### Phase 4: Stage 4 (5 Digestion Sub-Minigames) [TODO]
-### Phase 5: Stage 5 (Health Verdict) + Polish [TODO]
+### Stage Details
+
+**Stage 1: Epic Welcome**
+- Avatar selection (8 characters)
+- Player name entry
+- Introduction animation
+- Learning objectives overview
+
+**Stage 2: Hygiene Challenge (15-20 seconds)**
+- WHO-recommended handwashing steps tutorial
+- Interactive step-by-step simulation
+- Germ detection game mechanic
+- Hygiene score affects Stage 4 difficulty
+- Educational outcome: understanding importance of handwashing
+
+**Stage 3: Supermarket Showcase**
+- Browse 50+ Thai foods
+- View nutritional information (calories, protein, carbs, fat, fiber, sugar)
+- Add foods to cart (budget: 1000 coins)
+- Learn about balanced meals
+- Educational outcome: nutritional awareness, budget management
+
+**Stage 4: Digestion Journey (5 sequential minigames)**
+- **4a. Mouth – Chewing**: Click-based chewing mechanic (QTE), break down food
+- **4b. Esophagus – Peristalsis**: Tilt/drag steering, simulate swallowing
+- **4c. Stomach – Acid Balance**: Mix food with stomach acid to correct pH
+- **4d. Small Intestine – Absorption**: Paddle/drag mechanics, collect nutrient orbs
+- **4e. Large Intestine – Water Balance**: Time-based water reabsorption challenge
+- Combined education: full digestive process understanding
+
+**Stage 5: Health Verdict**
+- Composite health score (average of all stages + nutrition quality)
+- Radar chart: Digestion Knowledge, Hygiene, Nutrition, Speed, Accuracy
+- Personalized tips based on weak areas
+- Leaderboard: top 5 local scores
+- Downloadable/shareable scorecard
+
+### Educational Design Principles
+- **Age-appropriate** (9-12 years): Simple mechanics, colorful visuals, engaging narratives
+- **Science-accurate**: Real digestive biology, actual food nutritional data
+- **Gamified learning**: Points, combos, levels, achievements
+- **Multiple learning styles**: Visual, kinesthetic, reading/writing
+- **Culturally relevant**: Thai foods, Thai language primary UI
+- **Self-paced**: No timer pressure for learning phases
 
 ## Getting Started
 
 ### Local Development
-1. Clone this repository.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open your browser to `http://localhost:5173`.
+```bash
+git clone https://github.com/dduskxy/digestive-mart.git
+cd digestive-mart
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 in your browser.
 
 ### Building for Production
-To build the game for deployment (e.g., GitHub Pages, Vercel, Netlify):
-
 ```bash
 npm run build
 ```
 
-This will generate a `dist` folder containing the compiled, minified, and optimized assets ready for hosting.
+This generates a `dist` folder ready for deployment to GitHub Pages, Vercel, or Netlify.
 
-## Deployment Notes
-- **Vite & Rollup**: The project uses Vite. All assets are statically bundled.
-- **Camera Permissions**: The browser will only allow `getUserMedia` (webcam access) on `localhost` or via **HTTPS**. You MUST host the game on a secure HTTPS server for the AI mechanics to work.
-- **No External Assets**: All visuals (emoji, CSS gradients, SVG), audio (Web Audio API synthesis), and data are bundled. Zero external image/audio files.
+## Deployment
+- **No camera/microphone access required** ✓
+- **No external assets to download** ✓
+- **Works offline after first load** (if cached)
+- **HTTPS not required** (works on HTTP, localhost, file://)
+- **Mobile-friendly** (360px+)
+
+## Content: Food Database
+
+**Categories**: Proteins, Carbs, Vegetables, Fruits, Snacks, Drinks
+
+**Sample Foods** (50+ total):
+- ข้าวกล้อง (Brown rice) - 215 cal, 5g protein, 45g carbs
+- ไข่ต้ม (Boiled egg) - 78 cal, 6g protein, 1g carbs
+- ปลาทูน้อย (Sardine) - 208 cal, 25g protein, 0g carbs
+- ผักบุ้ง (Water spinach) - 21 cal, 2g protein, 4g carbs
+- กล้วยหอม (Thai banana) - 89 cal, 1g protein, 23g carbs
+- น้ำแร่ (Mineral water) - 0 cal, 0g protein, 0g carbs
+- น้ำอัดลม (Soda) - 140 cal, 0g protein, 39g carbs
+- [+ 42 more]
 
 ## Development Notes
 
-### Camera Workflow
-1. Player enters name in Stage 1 (Welcome)
-2. ConsentModal appears asking for camera permission
-3. If granted: CameraInputProvider requests camera, models lazy-load on first use
-4. If denied: Game is fully playable with keyboard/mouse fallbacks
-5. Players can toggle camera on/off in Settings mid-game without losing progress
+### State Management
+- Centralized store with reactive updates
+- Player progress saved to localStorage
+- Stage scores tracked independently
+- Leaderboard stored locally (top 5 runs)
 
-### State Persistence
-- Player name, avatar, best score → localStorage
-- Camera consent decision → localStorage
-- All game progress → ephemeral (resets on new game, not persisted between sessions)
+### Audio
+- All sounds synthesized at runtime via Web Audio API
+- SoundManager singleton: background music, effects, speech synthesis (future)
+- Mutable in Settings
 
-### MediaPipe Model Loading
-- **HandLandmarker**: Loaded on Stage 2 (Hygiene) first use, reused across all subsequent stages
-- **FaceLandmarker**: Loaded on Stage 1 (Welcome selfie) or Stage 4a (Mouth detection) first use
-- Models are unloaded when no longer needed to save memory
-- Inference runs at ~30fps but throttled to every Nth frame for performance
+### Educational Scoring
+- Each stage: 0-100 points
+- Final score: average across all stages
+- Bonus points for: speed completion, hygiene, healthy choices
+- Penalty for: high junk food purchases, slow digestion
+
+### Responsive Design
+- Mobile-first (360px minimum)
+- Touch-friendly buttons (48px+)
+- Tablet optimized (768px+)
+- Desktop refined (1280px+)
 
 ## License
-MIT
+MIT - Free for educational use
+
+## Future Enhancements
+- Multilingual support (Thai, English, other SE Asian languages)
+- Teacher dashboard for classroom deployment
+- Student progress tracking/reporting
+- More digestive scenarios (lactose intolerance, food allergies)
+- AI-powered personalized learning paths
+- Social leaderboards (opt-in, anonymous)

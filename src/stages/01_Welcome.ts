@@ -1,7 +1,6 @@
 import { store } from '../state/store';
 import { el, Button } from '../components/UI';
 import { SoundManager } from '../audio/SoundManager';
-import { ConsentModal } from '../components/ConsentModal';
 
 export default function renderWelcome(): HTMLElement {
   // Main container
@@ -190,19 +189,8 @@ export default function renderWelcome(): HTMLElement {
     
     setTimeout(() => {
       const name = (nameInput as HTMLInputElement).value.trim() || 'นักผจญภัย';
-      store.update({ player: { ...store.state.player, name, avatar: selectedAvatar } });
-      
-      // Show ConsentModal FIRST before proceeding to next stage
-      if (!store.state.camera.consentShown) {
-        const consentModal = new ConsentModal(() => {
-          // After consent is handled, move to next stage
-          store.setStage('02_Hygiene');
-        });
-        consentModal.mount();
-      } else {
-        // If consent was already shown in this session, skip it
-        store.setStage('02_Hygiene');
-      }
+      store.setPlayer(name, selectedAvatar);
+      store.setStage('02_Hygiene');
     }, 600); // wait for burst
   };
   startBtnWrapper.appendChild(startBtn);
