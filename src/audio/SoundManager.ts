@@ -70,8 +70,70 @@ interface SynthOptions {
   fmAmount?: number;
 }
 
-function playSynth(opts: any) {
-  return;
+function playSynth(opts: SynthOptions) {
+  if (!audioCtx || !sfxGain || _isMuted) return;
+  try {
+    const dur = opts.dur || 0.1;
+    const vol = opts.vol || 0.1;
+    const t = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const panNode = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+
+    if (opts.types && opts.types.length > 0) {
+      osc.type = opts.types[0]; 
+    } else {
+      osc.type = opts.type || 'sine';
+    }
+
+    const freq = opts.freq * (opts.pitchMult || 1);
+    osc.frequency.setValueAtTime(freq, t);
+    
+    if (opts.slideToFreq) {
+      osc.frequency.exponentialRampToValueAtTime(opts.slideToFreq * (opts.pitchMult || 1), t + dur);
+    }
+
+    if (opts.fmFreqMult && opts.fmAmount) {
+      const fmOsc = audioCtx.createOscillator();
+      const fmGain = audioCtx.createGain();
+      fmOsc.type = 'sine';
+      fmOsc.frequency.value = freq * opts.fmFreqMult;
+      fmGain.gain.value = opts.fmAmount;
+      fmOsc.connect(fmGain);
+      fmGain.connect(osc.frequency);
+      fmOsc.start(t);
+      fmOsc.stop(t + dur);
+    }
+
+    gain.gain.setValueAtTime(0, t);
+    const a = opts.attack || 0.01;
+    const d = opts.decay || 0.1;
+    const s = opts.sustain || 0;
+    const r = opts.release || 0.01;
+    
+    gain.gain.linearRampToValueAtTime(vol, t + a);
+    if (s > 0) {
+      gain.gain.exponentialRampToValueAtTime(vol * s, t + a + d);
+      gain.gain.setValueAtTime(vol * s, t + dur - r);
+      gain.gain.linearRampToValueAtTime(0, t + dur);
+    } else {
+      gain.gain.exponentialRampToValueAtTime(0.001, t + a + d);
+    }
+
+    osc.connect(gain);
+    
+    if (panNode && opts.pan !== undefined) {
+      panNode.pan.value = Math.max(-1, Math.min(1, opts.pan));
+      gain.connect(panNode);
+      panNode.connect(sfxGain);
+    } else {
+      gain.connect(sfxGain);
+    }
+
+    osc.start(t);
+    osc.stop(t + dur);
+  } catch(e) {}
 }
 
 interface NoiseSynthOptions {
@@ -84,8 +146,50 @@ interface NoiseSynthOptions {
   release?: number;
 }
 
-function playNoiseSynth(opts: any) {
-  return;
+function playNoiseSynth(opts: NoiseSynthOptions) {
+  if (!audioCtx || !sfxGain || _isMuted) return;
+  try {
+    const dur = opts.dur || 0.1;
+    const vol = opts.vol || 0.1;
+    const t = audioCtx.currentTime;
+
+    const bufferSize = audioCtx.sampleRate * dur;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = buffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = opts.filterType || 'lowpass';
+    filter.frequency.value = opts.filterFreq || 1000;
+
+    const gain = audioCtx.createGain();
+    const panNode = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+
+    gain.gain.setValueAtTime(0, t);
+    const a = opts.attack || 0.02;
+    const r = opts.release || 0.05;
+    gain.gain.linearRampToValueAtTime(vol, t + a);
+    gain.gain.setValueAtTime(vol, t + dur - r);
+    gain.gain.linearRampToValueAtTime(0.001, t + dur);
+
+    noiseSource.connect(filter);
+    filter.connect(gain);
+    
+    if (panNode && opts.pan !== undefined) {
+      panNode.pan.value = Math.max(-1, Math.min(1, opts.pan));
+      gain.connect(panNode);
+      panNode.connect(sfxGain);
+    } else {
+      gain.connect(sfxGain);
+    }
+
+    noiseSource.start(t);
+  } catch(e) {}
 }
 
 export class SoundManager {
@@ -179,7 +283,44 @@ export class SoundManager {
 
   // === Dynamic Background Music ===
   static playBGM(mood: string) {
-    return;
+    if (!audioCtx || _isMuted || !masterGain || !musicGain) return;
+    this.stopBGM();
+
+    try {
+      currentBgmGain = audioCtx.createGain();
+      currentBgmGain.gain.value = 0.001;
+      currentBgmGain.gain.exponentialRampToValueAtTime(1.0, audioCtx.currentTime + 1.0);
+
+      bgmFilter = audioCtx.createBiquadFilter();
+      bgmFilter.type = 'lowpass';
+      bgmFilter.frequency.value = 3000;
+
+      currentBgmGain.connect(bgmFilter);
+      bgmFilter.connect(musicGain);
+
+      let freqs = [220, 277, 330]; // default A major chordish drone
+      if (mood === 'supermarket') freqs = [261.63, 329.63, 392.00]; // C major
+      else if (mood === 'stomach') freqs = [150, 200, 250]; // lower, rumbling
+      else if (mood === 'poop') freqs = [100, 150, 200]; // very low
+      
+      freqs.forEach(f => {
+        const osc = audioCtx!.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = f;
+        const lfo = audioCtx!.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.2 + Math.random() * 0.5;
+        const lfoGain = audioCtx!.createGain();
+        lfoGain.gain.value = 5 + Math.random() * 10;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        
+        osc.connect(currentBgmGain!);
+        osc.start();
+        lfo.start();
+        currentBgmOscillators.push(osc, lfo);
+      });
+    } catch(e) {}
   }
 
   /**

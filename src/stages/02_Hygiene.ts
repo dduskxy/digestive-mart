@@ -174,7 +174,15 @@ export function renderHygiene(): HTMLElement {
       
       handIcon.style.transform = `scale(${1 + (Math.sin(percent/3) * 0.08)})`;
 
-      if (Math.random() > 0.6) createInteractBubble(x, y);
+      if (Math.random() > 0.6) {
+        createInteractBubble(x, y);
+        if (Math.random() > 0.5) SoundManager.bubble();
+      }
+      
+      // Play a water swish sound occasionally during movement
+      if (Math.random() > 0.85) {
+        SoundManager.water();
+      }
 
       const germsToKeep = Math.ceil(totalGerms * (1 - percent/100));
       germCountLabel.textContent = `🦠 เชื้อโรคเหลือ: ${germsToKeep}`;

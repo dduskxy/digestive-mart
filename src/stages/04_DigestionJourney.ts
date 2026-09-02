@@ -212,7 +212,9 @@ export default function renderDigestionJourney(): HTMLElement {
           });
         }
 
-        if (stomachMixCount % 5 === 0) SoundManager.bubble();
+        if (stomachMixCount % 3 === 0) SoundManager.bubble();
+        if (Math.random() > 0.7) SoundManager.squish();
+        if (Math.random() > 0.8) SoundManager.water();
 
         if (stomachMixCount >= totalStomachMixes) {
           phaseContainer.onpointermove = null;
