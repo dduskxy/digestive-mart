@@ -55,8 +55,8 @@ export default function renderDigestionJourney(): HTMLElement {
     setProgress(10);
 
     // Teeth Visuals
-    const topTeeth = el('div', 'absolute top-0 left-0 w-full h-20 bg-white shadow-md z-40 flex justify-around p-2 gap-1 rounded-b-3xl');
-    const bottomTeeth = el('div', 'absolute bottom-0 left-0 w-full h-20 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex justify-around p-2 gap-1 rounded-t-3xl');
+    const topTeeth = el('div', 'absolute top-0 left-0 w-full h-20 bg-white shadow-md z-40 flex justify-around p-2 gap-1 rounded-b-3xl pointer-events-none');
+    const bottomTeeth = el('div', 'absolute bottom-0 left-0 w-full h-20 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex justify-around p-2 gap-1 rounded-t-3xl pointer-events-none');
     for (let i = 0; i < 10; i++) {
       topTeeth.appendChild(el('div', 'w-1/12 h-full bg-gray-50 rounded-b-full shadow-inner border border-gray-200'));
       bottomTeeth.appendChild(el('div', 'w-1/12 h-full bg-gray-50 rounded-t-full shadow-inner border border-gray-200'));
