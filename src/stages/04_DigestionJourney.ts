@@ -89,12 +89,24 @@ export default function renderDigestionJourney(): HTMLElement {
         foodData.chews++;
         SoundManager.chew();
 
+        // Crumbs effect
+        confetti({
+          particleCount: 15,
+          spread: 80,
+          origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+          colors: ['#fde047', '#d97706', '#ffffff', '#86efac'],
+          gravity: 1.5,
+          scalar: 0.7,
+          ticks: 60
+        });
+
         // Chew animation
         gsap.to(food, { scaleX: 1.3, scaleY: 0.7, duration: 0.1, yoyo: true, repeat: 1 });
         
-        // Chomp teeth slightly
-        gsap.to(topTeeth, { y: 10, duration: 0.1, yoyo: true, repeat: 1 });
-        gsap.to(bottomTeeth, { y: -10, duration: 0.1, yoyo: true, repeat: 1 });
+        // Chomp teeth to the middle of the screen
+        const chompDistance = window.innerHeight / 2 - 80;
+        gsap.to(topTeeth, { y: chompDistance, duration: 0.1, yoyo: true, repeat: 1, ease: 'power2.in' });
+        gsap.to(bottomTeeth, { y: -chompDistance, duration: 0.1, yoyo: true, repeat: 1, ease: 'power2.in' });
 
         // Update visual based on chews
         food.style.filter = `blur(${foodData.chews}px)`;
