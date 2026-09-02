@@ -46,12 +46,16 @@ export default function renderDigestionJourney(): HTMLElement {
     gsap.fromTo(instructionBox, { scale: 1.2 }, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
   };
 
+  const hideInstruction = () => {
+    instructionBox.classList.add('opacity-0');
+  };
+
   // ---------------------------------------------------------
   // PHASE 1: MOUTH (Chewing)
   // ---------------------------------------------------------
   const initMouthPhase = () => {
     phaseContainer.className = 'w-full h-full relative transition-colors duration-1000 bg-pink-200 shadow-[inset_0_0_50px_rgba(200,0,0,0.2)]';
-    updateInstruction('คลิกเพื่อเคี้ยวอาหารทุกชิ้น!');
+    updateInstruction('แตะหรือคลิกที่อาหารทุกชิ้นเพื่อเคี้ยว!');
     setProgress(10);
 
     // Teeth Visuals
@@ -86,6 +90,7 @@ export default function renderDigestionJourney(): HTMLElement {
 
       food.onpointerdown = (e) => {
         if (foodData.state !== 'raw') return;
+        if (foodData.chews === 0) hideInstruction();
         foodData.chews++;
         SoundManager.chew();
 
@@ -162,7 +167,7 @@ export default function renderDigestionJourney(): HTMLElement {
     });
 
     setTimeout(() => {
-      updateInstruction('ลากเมาส์/นิ้ว เพื่อย่อยอาหาร!');
+      updateInstruction('กดค้างแล้วลากเมาส์/ถูหน้าจอ เพื่อย่อยอาหาร!');
       initStomachMixing(acidPool);
     }, 2000);
   };
@@ -178,6 +183,7 @@ export default function renderDigestionJourney(): HTMLElement {
       const dy = clientY - lastY;
       
       if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        if (stomachMixCount === 0) hideInstruction();
         stomachMixCount++;
         lastX = clientX;
         lastY = clientY;
@@ -271,7 +277,7 @@ export default function renderDigestionJourney(): HTMLElement {
     phaseContainer.appendChild(bottomWall);
 
     setTimeout(() => {
-      updateInstruction('คลิกเก็บสารอาหารให้หมด!');
+      updateInstruction('แตะหรือคลิกเก็บสารอาหารให้หมด!');
       initIntestineAbsorption();
     }, 1500);
   };
@@ -314,6 +320,7 @@ export default function renderDigestionJourney(): HTMLElement {
 
       nut.onpointerdown = (e) => {
         if (nut.dataset.collected === 'true') return;
+        if (nutrientsCollected === 0) hideInstruction();
         nut.dataset.collected = 'true';
         
         SoundManager.ding();
