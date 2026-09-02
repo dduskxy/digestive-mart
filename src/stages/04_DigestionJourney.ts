@@ -183,16 +183,34 @@ export default function renderDigestionJourney(): HTMLElement {
         setProgress(30 + (stomachMixCount / totalStomachMixes) * 30);
         acidPool.style.height = `${20 + (stomachMixCount / totalStomachMixes) * 60}%`;
 
-        // Toss food items around
+        // Toss food items around (squishy effect)
         foodElements.forEach(f => {
           gsap.to(f.el, {
             x: `+=${dx * 0.5 + (Math.random()-0.5)*30}`,
             y: `+=${dy * 0.5 + (Math.random()-0.5)*30}`,
             rotation: `+=${dx}`,
+            scaleX: 0.7 + Math.random() * 0.6,
+            scaleY: 0.7 + Math.random() * 0.6,
             duration: 0.3,
             ease: 'power1.out'
           });
         });
+
+        // Acid bubbles effect
+        if (Math.random() > 0.6) {
+          const bubble = el('div', 'absolute w-6 h-6 rounded-full bg-green-300 opacity-60 z-20 pointer-events-none drop-shadow-md');
+          bubble.style.left = `${clientX}px`;
+          bubble.style.top = `${clientY}px`;
+          phaseContainer.appendChild(bubble);
+          gsap.to(bubble, {
+            y: `-=${80 + Math.random()*50}`,
+            x: `+=${(Math.random()-0.5)*40}`,
+            scale: 2,
+            opacity: 0,
+            duration: 0.6 + Math.random()*0.4,
+            onComplete: () => bubble.remove()
+          });
+        }
 
         if (stomachMixCount % 5 === 0) SoundManager.bubble();
 
@@ -237,8 +255,13 @@ export default function renderDigestionJourney(): HTMLElement {
     const topWall = el('div', 'absolute top-0 left-0 w-full h-16 bg-red-300 flex justify-around opacity-50');
     const bottomWall = el('div', 'absolute bottom-0 left-0 w-full h-16 bg-red-300 flex justify-around opacity-50');
     for (let i = 0; i < 20; i++) {
-      topWall.appendChild(el('div', 'w-8 h-full bg-red-400 rounded-b-full'));
-      bottomWall.appendChild(el('div', 'w-8 h-full bg-red-400 rounded-t-full'));
+      const vTop = el('div', 'w-8 h-full bg-red-400 rounded-b-full drop-shadow-md');
+      const vBot = el('div', 'w-8 h-full bg-red-400 rounded-t-full drop-shadow-md');
+      topWall.appendChild(vTop);
+      bottomWall.appendChild(vBot);
+      
+      gsap.to(vTop, { rotation: (Math.random()-0.5)*30, transformOrigin: "top center", duration: 1+Math.random(), repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to(vBot, { rotation: (Math.random()-0.5)*30, transformOrigin: "bottom center", duration: 1+Math.random(), repeat: -1, yoyo: true, ease: 'sine.inOut' });
     }
     phaseContainer.appendChild(topWall);
     phaseContainer.appendChild(bottomWall);
@@ -300,7 +323,7 @@ export default function renderDigestionJourney(): HTMLElement {
         setProgress(60 + (nutrientsCollected / totalNutrients) * 40);
         
         gsap.to(nut, { 
-          y: -50, opacity: 0, scale: 1.5, duration: 0.4, 
+          y: -50, x: window.innerWidth / 2, opacity: 0, scale: 2, duration: 0.5, ease: 'power2.in',
           onComplete: () => nut.remove() 
         });
         
@@ -331,6 +354,13 @@ export default function renderDigestionJourney(): HTMLElement {
       scale: 1, rotation: 360, duration: 1.5, ease: 'elastic.out(1, 0.3)',
       onComplete: () => {
         SoundManager.fart();
+        
+        // Screen shake effect for impact
+        gsap.to(container, { x: 15, y: 10, duration: 0.05, yoyo: true, repeat: 9, clearProps: 'all' });
+        
+        // Add a pulsing animation to the poop
+        gsap.to(poop, { scale: 1.1, duration: 0.8, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+
         confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, zIndex: 1000 });
         
         const btnWrapper = el('div', 'absolute bottom-20 left-1/2 transform -translate-x-1/2 z-[100]');
