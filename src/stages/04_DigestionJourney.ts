@@ -116,6 +116,7 @@ export default function renderDigestionJourney(): HTMLElement {
           foodData.state = 'chewed';
           food.textContent = '🥣';
           food.style.filter = 'none';
+          food.style.pointerEvents = 'none';
           SoundManager.pop();
           gsap.to(food, { scale: 0.8, duration: 0.3, ease: 'back.out(2)' });
           itemsChewed++;
