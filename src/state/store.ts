@@ -13,21 +13,6 @@ export interface GameState {
     volume: number;
     language: 'th' | 'en'; // Thai or English
   };
-  stats: {
-    hp: number;
-    xp: number;
-    level: number;
-    energy: number;
-  };
-  combo: {
-    count: number;
-    multiplier: number;
-  };
-  timer: {
-    timeLeft: number;
-    isRunning: boolean;
-  };
-  budget: number;
   progress: {
     stageScores: Record<Stage, number>; // 0-100 score for each stage
     cleanlinessScore: number; // 0-100, affects digestion journey difficulty
@@ -52,21 +37,6 @@ class Store {
         volume: 1,
         language: 'th',
       },
-      stats: {
-        hp: 100,
-        xp: 0,
-        level: 1,
-        energy: 100,
-      },
-      combo: {
-        count: 0,
-        multiplier: 1.0,
-      },
-      timer: {
-        timeLeft: 60,
-        isRunning: false,
-      },
-      budget: 1000,
       progress: {
         stageScores: {
           '01_Welcome': 0,
@@ -121,22 +91,7 @@ class Store {
     this.update({ cart: [] });
   }
 
-  // New actions for extended state
-  updateStats(stats: Partial<GameState['stats']>) {
-    this.update({ stats: { ...this.state.stats, ...stats } });
-  }
 
-  updateCombo(combo: Partial<GameState['combo']>) {
-    this.update({ combo: { ...this.state.combo, ...combo } });
-  }
-
-  updateTimer(timer: Partial<GameState['timer']>) {
-    this.update({ timer: { ...this.state.timer, ...timer } });
-  }
-
-  setBudget(budget: number) {
-    this.update({ budget });
-  }
 
   // Education & Progress Management
   setStageScore(stage: Stage, score: number) {
@@ -151,16 +106,19 @@ class Store {
   }
 
   updateCleanlinessScore(score: number) {
+    const next = Math.max(0, Math.min(100, score));
     this.update({
-      progress: { ...this.state.progress, cleanlinessScore: Math.max(0, Math.min(100, score)) },
+      progress: { ...this.state.progress, cleanlinessScore: next },
     });
+    this.recalculateTotalScore();
   }
 
   private recalculateTotalScore() {
     const scores = Object.values(this.state.progress.stageScores);
     const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    const weighted = Math.round((avg * 0.8) + (this.state.progress.cleanlinessScore * 0.2));
     this.update({
-      progress: { ...this.state.progress, totalScore: Math.round(avg) },
+      progress: { ...this.state.progress, totalScore: Math.max(0, Math.min(100, weighted)) },
     });
   }
 

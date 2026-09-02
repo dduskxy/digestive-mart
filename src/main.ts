@@ -7,14 +7,10 @@ import renderDigestionJourney from './stages/04_DigestionJourney';
 import { renderSummaryReport } from './stages/05_SummaryReport';
 import { SoundManager } from './audio/SoundManager';
 import { HUD } from './components/HUD';
-import { Navbar } from './components/Navbar';
-
 const app = document.getElementById('app')!;
 
 // ─── Persistent UI ───────────────────────────────────────────────────────────
-const navbar = new Navbar();
 const hud = new HUD();
-navbar.mount(document.body);
 hud.mount(document.body);
 
 // ─── Stage → body class map ───────────────────────────────────────────────────

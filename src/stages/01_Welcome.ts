@@ -1,228 +1,137 @@
 import { store } from '../state/store';
 import { el, Button } from '../components/UI';
 import { SoundManager } from '../audio/SoundManager';
+import gsap from 'gsap';
 
 export default function renderWelcome(): HTMLElement {
-  // Main container
-  // Using bg-welcome (assume defined in backgrounds.css) and full screen styles
-  const container = el('div', 'w-full h-full min-h-screen bg-welcome flex flex-col md:flex-row items-center justify-center relative overflow-hidden font-sans font-["Baloo_2"]');
+  const container = el('div', 'absolute inset-0 overflow-y-auto bg-gradient-to-b from-[#ff9a8b] via-[#ff6a88] to-[#ff99ac] font-sans');
 
-  // Inject custom styles for animations
-  const style = el('style');
-  style.textContent = `
-    @keyframes gradient-text {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .animate-gradient-text {
-      background: linear-gradient(to right, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);
-      background-size: 300% 300%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: gradient-text 4s ease infinite;
-    }
-    @keyframes wavy {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    .animate-wavy {
-      display: inline-block;
-      animation: wavy 2s ease-in-out infinite;
-    }
-    @keyframes float-item {
-      0% { transform: translateY(100vh) rotate(0deg) scale(0.8); opacity: 0; }
-      10% { opacity: 0.8; }
-      90% { opacity: 0.8; }
-      100% { transform: translateY(-20vh) rotate(360deg) scale(1.2); opacity: 0; }
-    }
-    .floating-item {
-      position: absolute;
-      animation: float-item linear infinite;
-      z-index: 1;
-    }
-    @keyframes pulse-aura {
-      0% { box-shadow: 0 0 0 0 rgba(28, 176, 246, 0.7); }
-      70% { box-shadow: 0 0 0 20px rgba(28, 176, 246, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(28, 176, 246, 0); }
-    }
-    .pulse-aura {
-      animation: pulse-aura 2s infinite;
-    }
-    @keyframes particle-burst {
-      0% { transform: scale(1) translate(0, 0); opacity: 1; }
-      100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
-    }
-    .particle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #FFF;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: particle-burst 0.6s ease-out forwards;
-    }
-    @keyframes button-pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255,107,107,0.5); }
-      50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255,142,83,0.8); }
-    }
-    .start-btn-anim {
-      background: linear-gradient(135deg, #FF6B6B, #FF8E53);
-      animation: button-pulse 2s infinite;
-      border: 4px solid white;
-    }
-    .start-btn-anim:hover {
-      animation: none;
-      transform: scale(1.1);
-      box-shadow: 0 0 50px rgba(255,142,83,1);
-    }
-    .input-glow:focus {
-      box-shadow: 0 0 25px rgba(255, 107, 107, 0.6);
-      border-color: #FF6B6B;
-    }
-  `;
-  container.appendChild(style);
-
-  // Floating decorations overlay
-  const foods = ['🍎', '🥦', '🥕', '🍊', '🥛', '🍗', '✨', '🫧'];
-  for (let i = 0; i < 20; i++) {
-    const food = el('div', 'floating-item text-4xl md:text-6xl drop-shadow-lg');
-    food.textContent = foods[Math.floor(Math.random() * foods.length)];
-    food.style.left = `${Math.random() * 100}%`;
-    food.style.animationDuration = `${10 + Math.random() * 15}s`;
-    food.style.animationDelay = `${Math.random() * -20}s`;
-    container.appendChild(food);
-  }
-
-  // Layout Panels
-  const leftPanel = el('div', 'w-full md:w-1/2 flex flex-col items-center justify-center p-4 md:p-8 z-10');
-  const rightPanel = el('div', 'w-full md:w-1/2 flex flex-col items-center justify-center p-4 md:p-8 z-10');
-
-  // ==== LEFT PANEL: Character Showcase ====
-  const charShowcase = el('div', 'bg-white/80 backdrop-blur-xl rounded-[40px] shadow-2xl p-8 w-full max-w-md flex flex-col items-center border-4 border-white/50');
-  
-  const charLabel = el('h2', 'text-2xl md:text-3xl font-black text-[#FF6B6B] mb-8 drop-shadow-sm');
-  charLabel.textContent = 'เลือกตัวละครของคุณ';
-
-  const previewArea = el('div', 'flex flex-col items-center mb-8 relative');
-  const avatarPreview = el('div', 'text-9xl p-8 bg-gradient-to-br from-white to-blue-50 rounded-full pulse-aura border-4 border-white');
-  
-  const avatars = ['👦', '👧', '🧑', '🤖', '🐶', '🐱'];
-  let selectedAvatar = avatars[0];
-  avatarPreview.textContent = selectedAvatar;
-
-  // Circular/Hexagonal Grid layout (flex wrap for simplicity but nicely styled)
-  const avatarContainer = el('div', 'grid grid-cols-3 gap-4 w-full');
-  
-  const updateAvatar = () => {
-    avatarPreview.textContent = selectedAvatar;
-    // trigger a bounce on change
-    avatarPreview.classList.remove('animate-bounce');
-    void avatarPreview.offsetWidth; // trigger reflow
-    avatarPreview.classList.add('animate-bounce');
+  // Floating Organic Background Elements
+  const createFloatItem = (emoji: string, size: string, duration: number, delay: number, startX: string, startY: string) => {
+    const item = el('div', `absolute text-${size} opacity-30 select-none`);
+    item.textContent = emoji;
+    item.style.left = startX;
+    item.style.top = startY;
+    gsap.to(item, {
+      y: '+=50',
+      x: '+=30',
+      rotation: 20,
+      duration: duration,
+      yoyo: true,
+      repeat: -1,
+      delay: delay,
+      ease: 'sine.inOut'
+    });
+    return item;
   };
 
-  avatars.forEach(av => {
-    const btn = el('button', 'text-4xl p-4 bg-white/90 rounded-2xl hover:scale-110 hover:-translate-y-2 hover:bg-white hover:shadow-xl transition-all duration-300 active:scale-90 border-b-4 border-gray-200');
+  container.appendChild(createFloatItem('🍎', '6xl', 4, 0, '10%', '20%'));
+  container.appendChild(createFloatItem('🦠', '5xl', 5, 1, '80%', '15%'));
+  container.appendChild(createFloatItem('💧', '7xl', 6, 2, '20%', '70%'));
+  container.appendChild(createFloatItem('🥩', '6xl', 4.5, 0.5, '75%', '80%'));
+  container.appendChild(createFloatItem('🦷', '5xl', 5.5, 1.5, '50%', '10%'));
+  container.appendChild(createFloatItem('🧬', '8xl', 7, 0, '85%', '45%'));
+
+  // Main content shell
+  const shell = el('div', 'relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-5xl flex-col items-center justify-center gap-4 md:gap-8 px-4 py-8');
+
+  // Hero Section
+  const hero = el('div', 'text-center flex flex-col items-center animate-[slideUp_0.8s_ease-out] mt-4');
+  
+  const iconWrap = el('div', 'w-24 h-24 md:w-40 md:h-40 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-6xl md:text-8xl shadow-[0_0_40px_rgba(255,255,255,0.4)] mb-4 md:mb-6 border-4 border-white/40 drop-shadow-2xl');
+  iconWrap.textContent = '👅';
+  gsap.to(iconWrap, { scale: 1.05, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  hero.appendChild(iconWrap);
+
+  const title = el('h1', 'font-black text-5xl md:text-8xl text-white drop-shadow-[0_4px_4px_rgba(200,30,50,0.6)] mb-2 md:mb-4 tracking-tight');
+  title.innerHTML = `Body <span class="text-[#ffe066]">Quest</span>`;
+  hero.appendChild(title);
+
+  const subtitle = el('p', 'text-lg md:text-3xl font-bold text-white/90 drop-shadow-md max-w-2xl leading-relaxed mb-4 md:mb-8');
+  subtitle.textContent = 'เตรียมตัวให้พร้อม! เรากำลังจะย่อส่วนเข้าสู่ "ระบบย่อยอาหาร" อันน่าทึ่งของมนุษย์';
+  hero.appendChild(subtitle);
+
+  // Form Card
+  const formCard = el('div', 'w-full max-w-3xl rounded-[40px] bg-white/95 p-6 md:p-12 shadow-[0_30px_60px_-15px_rgba(200,30,50,0.4)] backdrop-blur-xl border-8 border-white/50 flex flex-col md:flex-row gap-6 md:gap-8 items-center mb-8');
+  
+  // Left: Avatar
+  const avatarSection = el('div', 'flex flex-col items-center w-full md:w-1/2');
+  const avatarHeader = el('h3', 'text-base md:text-lg font-black text-rose-500 mb-2 md:mb-4 uppercase tracking-widest');
+  avatarHeader.textContent = 'เลือกนักสำรวจ';
+  avatarSection.appendChild(avatarHeader);
+
+  const previewContainer = el('div', 'mx-auto mb-4 md:mb-6 flex h-24 w-24 md:h-32 md:w-32 items-center justify-center rounded-[32px] bg-gradient-to-br from-rose-100 to-orange-100 shadow-inner border-4 border-rose-200');
+  const avatarPreview = el('div', 'text-6xl md:text-7xl transition-transform duration-300 drop-shadow-xl');
+  avatarPreview.textContent = '👦';
+  previewContainer.appendChild(avatarPreview);
+  avatarSection.appendChild(previewContainer);
+
+  const avatars = ['👦', '👧', '🧑', '🤖', '🐶', '👽'];
+  let selectedAvatar = avatars[0];
+
+  const avatarGrid = el('div', 'grid grid-cols-3 gap-2 w-full max-w-[240px]');
+  const buttons: HTMLElement[] = [];
+  
+  avatars.forEach((av) => {
+    const btn = el('button', 'flex h-12 md:h-14 w-full items-center justify-center rounded-2xl bg-white border-2 border-slate-200 text-3xl transition-all duration-200 hover:border-rose-400 hover:bg-rose-50 shadow-sm');
     btn.textContent = av;
+    if (av === selectedAvatar) {
+        btn.classList.add('border-rose-500', 'bg-rose-100', 'scale-110', 'shadow-md');
+        btn.classList.remove('border-slate-200', 'bg-white');
+    }
     btn.onclick = () => {
       SoundManager.click();
       selectedAvatar = av;
-      updateAvatar();
+      avatarPreview.textContent = selectedAvatar;
+      gsap.fromTo(avatarPreview, { scale: 0.5, rotation: -20 }, { scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(2)' });
+
+      buttons.forEach(b => {
+        if (b.textContent === selectedAvatar) {
+            b.className = 'flex h-12 md:h-14 w-full items-center justify-center rounded-2xl bg-rose-100 border-2 border-rose-500 text-3xl transition-all duration-200 scale-110 shadow-md';
+        } else {
+            b.className = 'flex h-12 md:h-14 w-full items-center justify-center rounded-2xl bg-white border-2 border-slate-200 text-3xl transition-all duration-200 hover:border-rose-400 hover:bg-rose-50 shadow-sm';
+        }
+      });
     };
-    avatarContainer.appendChild(btn);
+    buttons.push(btn);
+    avatarGrid.appendChild(btn);
   });
-
-  previewArea.appendChild(avatarPreview);
-  charShowcase.appendChild(charLabel);
-  charShowcase.appendChild(previewArea);
-  charShowcase.appendChild(avatarContainer);
-  leftPanel.appendChild(charShowcase);
-
-  // ==== RIGHT PANEL: Title & Actions ====
+  avatarSection.appendChild(avatarGrid);
   
-  const titleContainer = el('div', 'text-center mb-12');
-  const title = el('h1', 'text-6xl md:text-8xl font-black animate-gradient-text drop-shadow-lg mb-4');
-  title.textContent = '🍽️ Digestion Mart';
+  // Right: Name & Start
+  const formSection = el('div', 'flex flex-col w-full md:w-1/2 gap-4 md:gap-6');
   
-  const subtitleContainer = el('div', 'text-3xl md:text-4xl font-black text-[#4E342E] drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] flex justify-center gap-2');
-  const subText = 'มินิมาร์ทนักย่อยอาหารผจญภัย!';
-  subText.split('').forEach((char, i) => {
-    const span = el('span', 'animate-wavy inline-block');
-    span.textContent = char;
-    span.style.animationDelay = `${i * 0.1}s`;
-    if(char === ' ') span.innerHTML = '&nbsp;';
-    subtitleContainer.appendChild(span);
-  });
+  const nameInputWrapper = el('div', 'w-full');
+  const nameLabel = el('label', 'block mb-2 text-base md:text-lg font-black text-rose-500 uppercase tracking-widest pl-1');
+  nameLabel.textContent = 'ชื่อของคุณ';
+  nameInputWrapper.appendChild(nameLabel);
 
-  titleContainer.appendChild(title);
-  titleContainer.appendChild(subtitleContainer);
-
-  const actionContainer = el('div', 'bg-white/80 backdrop-blur-xl rounded-[40px] shadow-2xl p-8 w-full max-w-md flex flex-col items-center border-4 border-white/50');
-  
-  // Name Input
-  const inputWrapper = el('div', 'relative w-full mb-8');
-  const nameInput = el('input', 'input-glow w-full px-6 py-5 rounded-3xl bg-white/90 border-4 border-transparent text-[#4B4B4B] font-black text-2xl text-center focus:outline-none transition-all shadow-inner placeholder-gray-400');
+  const nameInput = el('input', 'w-full rounded-[24px] border-4 border-rose-100 bg-rose-50/50 px-4 py-3 md:px-6 md:py-5 text-xl md:text-2xl font-black text-rose-900 outline-none transition-all focus:border-rose-400 focus:bg-white text-center placeholder-rose-300 shadow-inner');
   (nameInput as HTMLInputElement).type = 'text';
-  (nameInput as HTMLInputElement).placeholder = 'ชื่อของคุณ...';
+  (nameInput as HTMLInputElement).placeholder = 'พิมพ์ชื่อ... (ไม่ระบุก็ได้)';
   (nameInput as HTMLInputElement).value = store.state.player.name || '';
-  inputWrapper.appendChild(nameInput);
+  nameInputWrapper.appendChild(nameInput);
+  formSection.appendChild(nameInputWrapper);
 
-  // Start Button
-  const startBtnWrapper = el('div', 'relative w-full mb-8');
-  const startBtn = el('button', 'start-btn-anim w-full rounded-full text-white font-black text-4xl py-6 px-8 shadow-2xl transition-all relative overflow-hidden');
-  startBtn.textContent = 'เริ่มผจญภัย! 🚀';
-  
-  startBtn.onclick = (e) => {
-    SoundManager.success();
-    // Particle burst effect
-    const rect = startBtn.getBoundingClientRect();
-    for(let i=0; i<20; i++) {
-      const p = el('div', 'particle');
-      p.style.left = `\${e.clientX - rect.left}px`;
-      p.style.top = `\${e.clientY - rect.top}px`;
-      p.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
-      p.style.setProperty('--ty', `${(Math.random() - 0.5) * 200}px`);
-      startBtn.appendChild(p);
-    }
-    
-    setTimeout(() => {
-      const name = (nameInput as HTMLInputElement).value.trim() || 'นักผจญภัย';
-      store.setPlayer(name, selectedAvatar);
+  const startBtn = Button({
+    text: 'ออกผจญภัย! 🚀',
+    variant: 'primary',
+    className: 'w-full py-4 md:py-5 text-2xl md:text-3xl font-black rounded-[24px] shadow-[0_10px_25px_rgba(244,63,94,0.4)] animate-bounce',
+    onClick: () => {
+      const inputVal = (nameInput as HTMLInputElement).value.trim() || 'นักสำรวจ';
+      SoundManager.success();
+      store.setPlayer(inputVal, selectedAvatar);
       store.setStage('02_Hygiene');
-    }, 600); // wait for burst
-  };
-  startBtnWrapper.appendChild(startBtn);
+    }
+  });
+  formSection.appendChild(startBtn);
 
-  // Menu Options
-  const menuOptions = el('div', 'flex gap-4 w-full justify-center');
-  
-  const createMenuBtn = (text: string, onClick: () => void) => {
-    const btn = el('button', 'flex-1 bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 px-2 rounded-2xl shadow border-b-4 border-gray-200 hover:-translate-y-1 transition-all text-sm md:text-base');
-    btn.textContent = text;
-    btn.onclick = () => {
-      SoundManager.click();
-      onClick();
-    };
-    return btn;
-  };
+  formCard.appendChild(avatarSection);
+  formCard.appendChild(formSection);
 
-  menuOptions.appendChild(createMenuBtn('📖 วิธีเล่น', () => alert('วิธีเล่น: เลือกอาหารที่มีประโยชน์!')));
-  menuOptions.appendChild(createMenuBtn('🏆 ความสำเร็จ', () => alert('ความสำเร็จ (เร็วๆนี้)')));
-  menuOptions.appendChild(createMenuBtn('🔊 เสียง', () => {
-    alert('สลับเสียง (เปิด/ปิด)');
-  }));
-
-  actionContainer.appendChild(inputWrapper);
-  actionContainer.appendChild(startBtnWrapper);
-  actionContainer.appendChild(menuOptions);
-
-  rightPanel.appendChild(titleContainer);
-  rightPanel.appendChild(actionContainer);
-
-  container.appendChild(leftPanel);
-  container.appendChild(rightPanel);
+  shell.appendChild(hero);
+  shell.appendChild(formCard);
+  container.appendChild(shell);
 
   return container;
 }

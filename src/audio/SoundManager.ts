@@ -70,84 +70,8 @@ interface SynthOptions {
   fmAmount?: number;
 }
 
-function playSynth({
-  freq,
-  type = 'sine',
-  types = [],
-  dur = 0.1,
-  vol = 0.1,
-  slideToFreq = 0,
-  pitchMult = 1,
-  pan = 0,
-  attack = 0.01,
-  decay = 0.1,
-  sustain = 0,
-  release = 0.1,
-  fmFreqMult = 0,
-  fmAmount = 0
-}: SynthOptions) {
-  initAudio();
-  if (!audioCtx || !sfxGain) return;
-  try {
-    const t = audioCtx.currentTime;
-    const gain = audioCtx.createGain();
-    
-    // ADSR Envelope
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(vol, t + Math.max(attack, 0.001));
-    gain.gain.linearRampToValueAtTime(vol * sustain, t + Math.max(attack + decay, 0.002));
-    gain.gain.setValueAtTime(vol * sustain, Math.max(t, t + dur - release));
-    gain.gain.linearRampToValueAtTime(0, t + dur);
-
-    let finalNode: AudioNode = gain;
-    
-    // Panning if supported
-    if (audioCtx.createStereoPanner) {
-      const panner = audioCtx.createStereoPanner();
-      panner.pan.value = pan;
-      gain.connect(panner);
-      finalNode = panner;
-    }
-
-    finalNode.connect(sfxGain);
-
-    const actualFreq = freq * pitchMult;
-    const actualSlideTo = slideToFreq ? slideToFreq * pitchMult : 0;
-
-    const oscTypes = types.length > 0 ? types : [type];
-    
-    const carriers: OscillatorNode[] = [];
-
-    oscTypes.forEach(oscType => {
-      const osc = audioCtx!.createOscillator();
-      osc.type = oscType;
-      osc.frequency.setValueAtTime(actualFreq, t);
-      if (actualSlideTo) {
-        osc.frequency.exponentialRampToValueAtTime(actualSlideTo, t + dur);
-      }
-      osc.connect(gain);
-      osc.start(t);
-      osc.stop(t + dur);
-      carriers.push(osc);
-    });
-
-    if (fmFreqMult > 0 && fmAmount > 0) {
-      const mod = audioCtx!.createOscillator();
-      mod.type = 'sine';
-      mod.frequency.setValueAtTime(actualFreq * fmFreqMult, t);
-      
-      const modGain = audioCtx!.createGain();
-      modGain.gain.setValueAtTime(fmAmount, t);
-      mod.connect(modGain);
-      
-      carriers.forEach(c => modGain.connect(c.frequency));
-      mod.start(t);
-      mod.stop(t + dur);
-    }
-
-  } catch (e) {
-    console.warn(e);
-  }
+function playSynth(opts: any) {
+  return;
 }
 
 interface NoiseSynthOptions {
@@ -160,51 +84,8 @@ interface NoiseSynthOptions {
   release?: number;
 }
 
-function playNoiseSynth({
-  dur = 0.1,
-  vol = 0.1,
-  filterType = 'lowpass',
-  filterFreq = 1000,
-  pan = 0,
-  attack = 0.01,
-  release = 0.1
-}: NoiseSynthOptions) {
-  initAudio();
-  if (!audioCtx || !sfxGain) return;
-  try {
-    const t = audioCtx.currentTime;
-    const bufferSize = Math.floor(audioCtx.sampleRate * dur);
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-    
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
-    
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = filterType;
-    filter.frequency.value = filterFreq;
-    
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(vol, t + Math.max(attack, 0.001));
-    gain.gain.setValueAtTime(vol, Math.max(t, t + dur - release));
-    gain.gain.linearRampToValueAtTime(0, t + dur);
-
-    let finalNode: AudioNode = gain;
-    if (audioCtx.createStereoPanner) {
-      const panner = audioCtx.createStereoPanner();
-      panner.pan.value = pan;
-      gain.connect(panner);
-      finalNode = panner;
-    }
-    
-    noise.connect(filter);
-    filter.connect(gain);
-    finalNode.connect(sfxGain);
-    
-    noise.start(t);
-  } catch (e) { /* ignore */ }
+function playNoiseSynth(opts: any) {
+  return;
 }
 
 export class SoundManager {
@@ -298,48 +179,7 @@ export class SoundManager {
 
   // === Dynamic Background Music ===
   static playBGM(mood: string) {
-    initAudio();
-    if (!audioCtx || !musicGain) return;
-    
-    // Fade out old
-    if (currentBgmGain) {
-      try {
-        currentBgmGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-      } catch (_) { /* ignore */ }
-      const oldOsc = currentBgmOscillators;
-      setTimeout(() => oldOsc.forEach(o => { try { o.stop(); } catch (_) { } }), 1200);
-    }
-
-    const newGain = audioCtx.createGain();
-    newGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-    newGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 1.5);
-    
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 2500; // default open
-    bgmFilter = filter;
-
-    newGain.connect(filter);
-    filter.connect(musicGain);
-
-    currentBgmGain = newGain;
-    currentBgmOscillators = [];
-
-    const freqs: Record<string, number[]> = {
-      welcome: [220, 330],
-      shopping: [330, 440],
-      digestion: [165, 247],
-      summary: [261, 392],
-    };
-    const notes = freqs[mood] || freqs.welcome;
-    notes.forEach(freq => {
-      const osc = audioCtx!.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      osc.connect(newGain);
-      osc.start();
-      currentBgmOscillators.push(osc);
-    });
+    return;
   }
 
   /**

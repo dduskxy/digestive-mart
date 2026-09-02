@@ -1,35 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Kanit:wght@300;400;500;600;700;800&display=swap');
 @import "./backgrounds.css";
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Kanit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg-page: #fdfbf7;
+  --ui-panel: rgba(255,255,255,0.85);
+  --ui-panel-strong: #ffffff;
+  --text-main: #33211e;
+  --text-soft: #6b524d;
+  --brand-primary: #ff6b57;
+  --brand-secondary: #2db1d8;
+  --brand-gold: #ffbe3d;
+  --brand-success: #35c57b;
+  --brand-purple: #7a5ce6;
+  --brand-red: #ea4d4d;
+  --panel-border: rgba(0,0,0,0.04);
+}
 
-@theme {
-  --font-kanit: 'Kanit', sans-serif;
-  --font-baloo: 'Baloo 2', cursive;
-  
-  /* Kid-friendly warm color palette */
-  --color-bg-base: #FFF8F0;
-  --color-primary: #FF8A65;
-  --color-secondary: #4DB6AC;
-  --color-highlight: #FFD54F;
-  --color-danger: #EF5350;
-  --color-text-base: #4E342E;
-  --color-success: #66BB6A;
-  --color-info: #42A5F5;
-  --color-pink: #F48FB1;
-  --color-purple: #CE93D8;
-  
-  /* Additional Organ Colors */
-  --color-stomach: #FF6347;
-  --color-intestine: #FFA07A;
-  --color-mouth: #FF85A1;
-  --color-acid: #7FFF00;
+* { 
+  box-sizing: border-box; 
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
 
-  /* Stage Accent Colors */
-  --color-accent-hygiene: #00BFFF;
-  --color-accent-supermarket: #FFD700;
-  --color-accent-digestion: #FF6347;
-  --color-accent-summary: #FFD700;
+/* Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-family: 'Kanit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+button, input {
+  font-family: 'Kanit', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Kanit', sans-serif;
+}
+
+.font-baloo {
+  font-family: 'Baloo 2', cursive;
+}
+
+#app {
+  min-height: 100vh;
 }
 
 /* Animations */
@@ -38,199 +64,31 @@
   50% { transform: translateY(-10px); }
 }
 
-@keyframes floatBubble {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
-}
-
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 10px rgba(255,138,101,0.5); transform: scale(1); }
-  50% { box-shadow: 0 0 20px rgba(255,138,101,0.8); transform: scale(1.05); }
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0%, 100% { box-shadow: 0 0 10px rgba(255,107,87,0.5); transform: scale(1); }
+  50% { box-shadow: 0 0 20px rgba(255,107,87,0.8); transform: scale(1.02); }
 }
 
 @keyframes bounceIn {
   0% { transform: scale(0.3); opacity: 0; }
   50% { transform: scale(1.05); opacity: 1; }
-  70% { transform: scale(0.9); }
+  70% { transform: scale(0.95); }
   100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes slideInUp {
-  0% { transform: translateY(50px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes slideInLeft {
-  0% { transform: translateX(-50px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideInRight {
-  0% { transform: translateX(50px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes starPop {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-}
-
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.1); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.1); }
-}
-
-@keyframes acidWave {
-  0% { transform: translateY(0) scaleX(1); }
-  50% { transform: translateY(-5px) scaleX(1.05); }
-  100% { transform: translateY(0) scaleX(1); }
-}
-
-@keyframes nutrientOrb {
-  0%, 100% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
-  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
-}
-
-@keyframes confettiFall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
-}
-
-@keyframes countUp {
-  0% { opacity: 0.5; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-/* Utilities */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-}
-
-.glass-dark {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.btn-3d {
-  transition: all 0.1s ease;
-  box-shadow: 0 6px 0 var(--color-primary), 0 10px 10px rgba(0,0,0,0.2);
-  transform: translateY(0);
-}
-
-.btn-3d:active {
-  box-shadow: 0 2px 0 var(--color-primary), 0 4px 4px rgba(0,0,0,0.2);
-  transform: translateY(4px);
-}
-
-.text-gradient-warm {
-  background: linear-gradient(45deg, #FF8A65, #FFD54F);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-cool {
-  background: linear-gradient(45deg, #42A5F5, #4DB6AC);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-health {
-  background: linear-gradient(45deg, #66BB6A, #4DB6AC);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.glow-primary { box-shadow: 0 0 15px var(--color-primary); }
-.glow-success { box-shadow: 0 0 15px var(--color-success); }
-.glow-danger { box-shadow: 0 0 15px var(--color-danger); }
-
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card-hover:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-.badge {
-  display: inline-flex;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  align-items: center;
-  justify-content: center;
-}
-
-.progress-ring-track {
-  stroke: rgba(255,255,255,0.3);
-  stroke-width: 8;
-  fill: none;
-}
-
-.progress-ring-fill {
-  stroke: var(--color-primary);
-  stroke-width: 8;
-  fill: none;
-  transition: stroke-dashoffset 0.5s ease-out;
-  stroke-linecap: round;
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }
 
 .animate-float { animation: float 3s ease-in-out infinite; }
-.animate-float-bubble { animation: floatBubble 4s ease-in infinite; }
 .animate-pulse-glow { animation: pulseGlow 2s infinite; }
-.animate-bounce-in { animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-.animate-shake { animation: shake 0.4s ease-in-out; }
-.animate-star-pop { animation: starPop 0.5s ease-out forwards; }
-
-.stage-transition-enter { animation: fadeIn 0.5s ease-out forwards; }
-.stage-transition-exit { animation: fadeIn 0.5s ease-in reverse forwards; }
+.animate-bounce-in { animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.animate-blob { animation: blob 7s infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
 
 .hide-scrollbar {
   -ms-overflow-style: none;
@@ -240,95 +98,26 @@
   display: none;
 }
 
-.nutrient-orb {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, var(--color-highlight) 60%);
-  cursor: pointer;
-  animation: nutrientOrb 2s infinite;
-}
-
 .food-card {
   background: white;
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
   transition: all 0.2s ease;
   border: 2px solid transparent;
 }
 .food-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 20px rgba(0,0,0,0.1);
-  border-color: var(--color-highlight);
+  box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+  border-color: var(--brand-gold);
 }
 
-/* Background overlays */
-.stage-overlay-welcome { background: rgba(255, 248, 240, 0.8); }
-.stage-overlay-hygiene { background: rgba(224, 247, 250, 0.8); }
-.stage-overlay-supermarket { background: rgba(33, 33, 33, 0.6); }
-.stage-overlay-digestion { background: rgba(255, 235, 238, 0.8); }
-.stage-overlay-summary { background: rgba(255, 248, 225, 0.8); }
-
-/* Organ visuals (pure CSS) */
-.organ-mouth {
-  width: 120px;
-  height: 60px;
-  background-color: var(--color-mouth);
-  border-radius: 50px;
-  border: 4px solid #D81B60;
-  box-shadow: inset 0 -10px 10px rgba(0,0,0,0.2);
-}
-
-.organ-stomach {
-  width: 150px;
-  height: 120px;
-  background-color: var(--color-stomach);
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-  box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2);
-}
-
-.organ-intestine {
-  width: 200px;
-  height: 150px;
-  background-color: transparent;
-  border: 20px solid var(--color-intestine);
-  border-radius: 30px;
-  box-shadow: inset 10px 10px 20px rgba(0,0,0,0.1), 10px 10px 20px rgba(0,0,0,0.1);
-}
-
-.stomach-acid {
-  width: 100%;
-  height: 40px;
-  background-color: var(--color-acid);
-  border-radius: 50% 50% 0 0;
-  animation: acidWave 2s infinite ease-in-out;
-  opacity: 0.8;
-}
-
-/* Typography */
-.text-display {
-  font-family: var(--font-baloo);
-  font-size: 3.5rem;
-  line-height: 1.1;
-  font-weight: 800;
-}
-
-.text-game-title {
-  font-family: var(--font-baloo);
-  font-size: 4.5rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-shadow: 3px 3px 0 var(--color-primary), 6px 6px 0 rgba(0,0,0,0.1);
-}
-
-/* Custom components */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -337,57 +126,18 @@
 
 .modal-card {
   background: white;
-  border-radius: 24px;
-  padding: 2rem;
+  border-radius: 32px;
+  padding: 2.5rem;
   max-width: 90vw;
   width: 500px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  animation: bounceIn 0.5s ease-out;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  animation: bounceIn 0.4s ease-out;
+  border: 1px solid rgba(255,255,255,0.5);
 }
 
-.stat-bar {
-  background: #E0E0E0;
-  border-radius: 999px;
-  height: 16px;
-  overflow: hidden;
-  position: relative;
-}
-
-.stat-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.3s ease;
-  background: var(--color-primary);
-}
-
-.combo-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: var(--color-highlight);
-  color: var(--color-text-base);
-  font-weight: 800;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  animation: heartbeat 1s infinite;
-}
-
-.xp-bar {
-  background: rgba(255,255,255,0.3);
-  border: 2px solid white;
-  border-radius: 12px;
-  height: 24px;
-  overflow: hidden;
-}
-
-.health-tag-excellent { background-color: var(--color-success); color: white; }
-.health-tag-moderate { background-color: var(--color-highlight); color: var(--color-text-base); }
-.health-tag-avoid { background-color: var(--color-danger); color: white; }
+.health-tag-excellent { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.health-tag-moderate { background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.health-tag-avoid { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {

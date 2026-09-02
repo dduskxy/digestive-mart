@@ -134,71 +134,54 @@ export class Navbar {
     let modals = '';
     if (this.showSettings) {
         modals += `
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex justify-center items-center">
-            <div class="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md p-8 rounded-3xl border-4 border-white shadow-[0_0_30px_rgba(255,255,255,0.4)] max-w-sm w-full text-center">
-                <h2 class="text-3xl font-black mb-6 text-indigo-900 drop-shadow-sm">⚙️ Settings</h2>
+        <div class="fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-[100] flex justify-center items-center p-4">
+            <div class="glass-panel w-full max-w-md rounded-[32px] p-7">
+                <h2 class="text-3xl font-black mb-6 text-[#3d2a2a]">⚙️ ตั้งค่า</h2>
                 <div class="mb-6 flex flex-col items-center">
-                    <label class="text-lg font-bold text-gray-800 mb-2">Volume</label>
-                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                    <label class="text-lg font-bold text-[#5d4645] mb-2">ระดับเสียง</label>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" class="w-full accent-[#ff7c6b]">
                 </div>
-                <div class="mb-8 p-4 bg-indigo-100/80 rounded-xl text-indigo-800 text-sm font-semibold border border-indigo-200">
+                <div class="mb-8 rounded-2xl bg-[#fff3ef] text-[#6e473d] border border-[#f8d9cf] px-4 py-3 text-sm font-semibold">
                     Theme: Digestion Mart 🍎
                 </div>
-                <button id="btn-close-settings" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 text-lg">Close</button>
+                <button id="btn-close-settings" class="bg-gradient-to-r from-[#ff7c6b] to-[#ff9c62] text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-[1.02] active:scale-95 text-lg">ปิด</button>
             </div>
         </div>`;
     }
 
     if (this.showPause) {
         modals += `
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex justify-center items-center">
-            <div class="bg-gradient-to-b from-purple-900/90 to-indigo-900/90 backdrop-blur-lg p-10 rounded-3xl border-4 border-white/50 shadow-[0_0_40px_rgba(167,139,250,0.6)] max-w-sm w-full text-center flex flex-col gap-4">
-                <h2 class="text-4xl font-black mb-4 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">⏸ PAUSED</h2>
-                <button id="btn-resume" class="bg-green-500 hover:bg-green-400 text-white font-bold py-4 px-6 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.6)] transition-transform hover:scale-105 active:scale-95 text-xl">▶️ Resume</button>
-                <button id="btn-restart" class="bg-orange-500 hover:bg-orange-400 text-white font-bold py-4 px-6 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.6)] transition-transform hover:scale-105 active:scale-95 text-xl">🔄 Restart</button>
-                <button id="btn-exit" class="bg-red-500 hover:bg-red-400 text-white font-bold py-4 px-6 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-transform hover:scale-105 active:scale-95 text-xl">🚪 Exit to Menu</button>
+        <div class="fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-[100] flex justify-center items-center p-4">
+            <div class="glass-panel w-full max-w-sm rounded-[32px] p-7 text-center">
+                <h2 class="text-4xl font-black mb-6 text-[#3d2a2a]">⏸ หยุดชั่วคราว</h2>
+                <div class="flex flex-col gap-3">
+                  <button id="btn-resume" class="bg-gradient-to-r from-[#4ec28d] to-[#3ebc7c] text-white font-bold py-3 px-6 rounded-full shadow-[0_10px_20px_rgba(78,194,141,0.3)] transition-transform hover:scale-[1.02] active:scale-95 text-xl">▶️ ดำเนินการต่อ</button>
+                  <button id="btn-restart" class="bg-gradient-to-r from-[#f7b32d] to-[#ef9d12] text-white font-bold py-3 px-6 rounded-full shadow-[0_10px_20px_rgba(247,179,45,0.25)] transition-transform hover:scale-[1.02] active:scale-95 text-xl">🔄 เริ่มใหม่</button>
+                  <button id="btn-exit" class="bg-gradient-to-r from-[#ef5d5d] to-[#d94a4a] text-white font-bold py-3 px-6 rounded-full shadow-[0_10px_20px_rgba(239,93,93,0.25)] transition-transform hover:scale-[1.02] active:scale-95 text-xl">🚪 กลับเมนู</button>
+                </div>
             </div>
         </div>`;
     }
 
+    // If in welcome screen, don't show the navbar at all
+    if (state.stage === '01_Welcome') {
+        this.container.style.display = 'none';
+        return;
+    } else {
+        this.container.style.display = 'flex';
+    }
+
     this.container.innerHTML = `
-      <div class="w-full max-w-6xl mx-auto">
-        <div class="w-full flex justify-between items-center px-6 py-3 backdrop-blur-xl bg-white/20 rounded-t-3xl rounded-b-xl border-t-4 border-l-4 border-r-4 border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"></div>
-          
-          <!-- Left side -->
-          <div class="flex items-center gap-4 z-10">
-            <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-[0_0_20px_${stageColor}] border-4 border-white bg-white/40 transition-shadow duration-500" style="box-shadow: 0 0 20px ${stageColor};">
-              ${state.player.avatar || '👦'}
-            </div>
-            <div class="flex flex-col">
-              <span class="text-white font-black text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] tracking-wide">${state.player.name || 'Player'}</span>
-              <span class="text-white font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-lg tracking-wider bg-black/30 px-3 py-1 rounded-full mt-1">${stageName}</span>
-            </div>
-          </div>
-          
-          <!-- Center Dots -->
-          <div class="flex items-center gap-2 z-10 hidden md:flex bg-black/20 px-6 py-3 rounded-full backdrop-blur-sm border border-white/20 shadow-inner">
+      <div class="w-full max-w-6xl mx-auto flex items-start pointer-events-none mt-2 px-4">
+        <div class="flex-1"></div>
+        <div class="flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/70 border border-white/60 shadow-sm backdrop-blur-md pointer-events-auto shrink-0">
+          <span class="font-bold text-[#5f483f]">${stageName}</span>
+          <div class="flex items-center gap-2">
             ${dots}
           </div>
-
-          <!-- Right Side -->
-          <div class="flex items-center gap-4 z-10">
-            <button id="btn-sound" class="w-14 h-14 rounded-full bg-white/30 hover:bg-white/50 border-2 border-white/70 transition-all shadow-md flex items-center justify-center text-2xl hover:scale-110 active:scale-95">
-              ${soundIcon}
-            </button>
-            <button id="btn-settings" class="w-14 h-14 rounded-full bg-white/30 hover:bg-white/50 border-2 border-white/70 transition-all shadow-md flex items-center justify-center text-2xl hover:scale-110 active:scale-95">
-              ⚙️
-            </button>
-            <button id="btn-pause" class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 border-2 border-white transition-all shadow-[0_0_15px_rgba(100,100,255,0.6)] flex items-center justify-center text-white text-2xl hover:scale-110 active:scale-95 font-bold">
-              ⏸
-            </button>
-          </div>
         </div>
-        
-        <!-- Progress Bar -->
-        <div class="w-full h-2 bg-black/30 rounded-b-3xl overflow-hidden border-b-2 border-l-2 border-r-2 border-white/30 backdrop-blur-md shadow-lg">
-          <div class="h-full bg-gradient-to-r from-blue-400 via-green-400 to-yellow-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]" style="width: ${progress}%"></div>
+        <div class="flex-1 flex justify-end items-center gap-2 pointer-events-auto">
+          <!-- Settings and Pause buttons removed as requested -->
         </div>
       </div>
       ${modals}

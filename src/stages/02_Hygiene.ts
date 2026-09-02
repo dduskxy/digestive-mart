@@ -2,165 +2,81 @@ import { store } from '../state/store';
 import { el, Button } from '../components/UI';
 import { SoundManager } from '../audio/SoundManager';
 import confetti from 'canvas-confetti';
+import { renderHygieneChoices, HygieneChoice } from './HygieneChoices';
 
 export function renderHygiene(): HTMLElement {
-  const styleId = 'hygiene-styles';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      @keyframes floatUp {
-        0% { transform: translateY(100vh) scale(0.5) rotate(0deg); opacity: 0; }
-        20% { opacity: 0.8; }
-        80% { opacity: 0.6; }
-        100% { transform: translateY(-20vh) scale(1.5) rotate(360deg); opacity: 0; }
-      }
-      .bg-bubble {
-        position: absolute;
-        bottom: -50px;
-        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0.5) 40%, rgba(135,206,235,0.2) 80%, rgba(255,255,255,0.9));
-        border-radius: 50%;
-        box-shadow: inset -2px -2px 10px rgba(135,206,235,0.5), inset 2px 2px 10px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5);
-        pointer-events: none;
-        animation: floatUp linear infinite;
-        z-index: 1;
-      }
-      .bg-gradient-animated {
-        background: linear-gradient(180deg, #89CFF0, #E0F6FF, #a0d8f1, #89CFF0);
-        background-size: 100% 300%;
-        animation: gradientMove 8s ease infinite;
-      }
-      @keyframes gradientMove {
-        0% { background-position: 0% 0%; }
-        50% { background-position: 0% 100%; }
-        100% { background-position: 0% 0%; }
-      }
-      .bg-element {
-        position: absolute;
-        font-size: 5rem;
-        opacity: 0.15;
-        z-index: 0;
-        pointer-events: none;
-        animation: floatElement 6s ease-in-out infinite alternate;
-      }
-      @keyframes floatElement {
-        0% { transform: translateY(0) rotate(-10deg); }
-        100% { transform: translateY(-30px) rotate(10deg); }
-      }
-      .germ-explode {
-        animation: explode 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
-      }
-      @keyframes explode {
-        0% { transform: scale(1); opacity: 1; }
-        40% { transform: scale(1.8); opacity: 0.9; }
-        100% { transform: scale(0); opacity: 0; }
-      }
-      .bubble-ring {
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: inset 0 0 30px rgba(255,255,255,0.9), 0 0 20px rgba(135,206,235,0.4);
-        border: 4px solid rgba(255,255,255,0.8);
-        backdrop-filter: blur(2px);
-      }
-      .star-anim {
-        animation: starPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        transform: scale(0);
-      }
-      @keyframes starPop {
-        0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-        100% { transform: scale(1) rotate(0deg); opacity: 1; }
-      }
-      .glowing-text {
-        text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px #FFD700;
-      }
-      .progress-transition {
-        transition: stroke-dashoffset 0.1s ease-out, stroke 0.3s ease-out;
-      }
-    `;
-    document.head.appendChild(style);
+  // Remove excessive top padding since Navbar is gone. Make it tight.
+  const container = el('div', 'absolute inset-0 overflow-x-hidden overflow-y-auto bg-gradient-to-b from-blue-100 to-cyan-50 flex flex-col items-center py-4 md:py-6 px-4 gap-4 font-["Kanit"] select-none');
+
+  // Animated background bubbles using Tailwind arbitrary values or injected styles
+  const bgLayer = el('div', 'absolute inset-0 overflow-hidden pointer-events-none');
+  for(let i = 0; i < 20; i++) {
+    const b = el('div', 'absolute rounded-full bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.5)] backdrop-blur-sm animate-float');
+    const size = 10 + Math.random() * 50;
+    b.style.width = `${size}px`; 
+    b.style.height = `${size}px`;
+    b.style.left = `${Math.random() * 100}%`;
+    b.style.bottom = `-${size + 50}px`;
+    b.style.animationDuration = `${5 + Math.random() * 10}s`;
+    b.style.animationDelay = `${Math.random() * 5}s`;
+    bgLayer.appendChild(b);
   }
-
-  const container = el('div', 'w-full h-full relative overflow-hidden bg-gradient-animated flex flex-col items-center justify-between py-6 px-4 font-sans select-none');
-
-  const observer = new MutationObserver((mutations) => {
-    if (!document.body.contains(container)) {
-      const styleEl = document.getElementById(styleId);
-      if (styleEl) document.head.removeChild(styleEl);
-      observer.disconnect();
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-
-  // Background elements
-  const decor1 = el('div', 'bg-element top-[10%] left-[5%]'); decor1.textContent = '🧴';
-  const decor2 = el('div', 'bg-element top-[60%] right-[5%]'); decor2.textContent = '💧';
-  const decor3 = el('div', 'bg-element bottom-[15%] left-[10%]'); decor3.textContent = '🫧';
-  decor2.style.animationDelay = '-2s'; decor3.style.animationDelay = '-4s';
-  container.appendChild(decor1); container.appendChild(decor2); container.appendChild(decor3);
-
-  // Animated background bubbles
-  for(let i = 0; i < 15; i++) {
-    const b = el('div', 'bg-bubble');
-    const size = 20 + Math.random() * 60;
-    b.style.width = `\${size}px`; b.style.height = `\${size}px`;
-    b.style.left = `\${Math.random() * 100}%`;
-    b.style.animationDuration = `\${4 + Math.random() * 6}s`;
-    b.style.animationDelay = `\${Math.random() * 5}s`;
-    container.appendChild(b);
-  }
+  container.appendChild(bgLayer);
 
   // Header Section
-  const header = el('div', 'w-full flex flex-col items-center z-10 relative mt-4');
+  const header = el('div', 'w-full max-w-2xl flex flex-col items-center z-10 mt-0 shrink-0');
   
-  const stageBadge = el('div', 'absolute top-0 right-4 bg-white/90 px-4 py-1.5 rounded-full shadow-sm text-[#1CB0F6] font-bold border-2 border-[#1CB0F6]/20 backdrop-blur-sm');
-  stageBadge.textContent = 'ด่าน 1 / 5';
-  header.appendChild(stageBadge);
-
-  const title = el('h1', 'text-4xl md:text-5xl font-black text-white mb-2 drop-shadow-md z-10 font-["Baloo_2"] flex items-center gap-2');
-  title.style.textShadow = '0 4px 0 #1CB0F6, 0 8px 15px rgba(0,0,0,0.1)';
-  title.textContent = '🧼 ภารกิจล้างมือ!';
-  
-  const progressText = el('p', 'text-2xl text-[#1CB0F6] font-extrabold bg-white/80 px-6 py-2 rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm');
-  progressText.textContent = '0% สะอาด!';
-
+  const title = el('h1', 'font-["Baloo_2"] text-4xl md:text-5xl lg:text-6xl font-extrabold text-blue-500 mb-2 drop-shadow-sm flex items-center gap-3');
+  title.innerHTML = '🧼 ภารกิจล้างมือ!';
   header.appendChild(title);
-  header.appendChild(progressText);
-  container.appendChild(header);
+
+  const progressContainer = el('div', 'bg-white/90 backdrop-blur-md px-6 py-2 md:px-8 md:py-3 rounded-full shadow-sm border border-blue-100 flex items-center gap-3');
+  const progressText = el('p', 'text-xl md:text-2xl text-blue-500 font-bold transition-all duration-300');
+  progressText.textContent = '0% สะอาด!';
+  progressContainer.appendChild(progressText);
+  header.appendChild(progressContainer);
+
+  const gameWrapper = el('div', 'w-full flex-1 flex flex-col items-center justify-center gap-4 md:gap-6 z-10 py-2');
+  gameWrapper.style.display = 'none';
+
+  // (choicesEl is appended later after variables are defined)
+
+  gameWrapper.appendChild(header);
 
   // Game Area
-  const gameAreaWrapper = el('div', 'relative w-[340px] h-[340px] md:w-[420px] md:h-[420px] flex flex-col items-center justify-center z-20 my-auto');
-  
-  const gameArea = el('div', 'relative w-full h-full bubble-ring flex items-center justify-center cursor-pointer overflow-visible transition-transform active:scale-95');
+  const gameAreaWrapper = el('div', 'relative flex items-center justify-center w-full z-20 shrink-0');
+  const gameArea = el('div', 'relative w-[260px] h-[260px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] rounded-full bg-white/40 backdrop-blur-md border-8 border-white/60 shadow-[0_0_40px_rgba(255,255,255,0.6)] flex items-center justify-center cursor-pointer overflow-visible transition-transform duration-200 active:scale-[0.98] touch-none');
   
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'absolute inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)] -rotate-90 pointer-events-none drop-shadow-md');
+  svg.setAttribute('class', 'absolute inset-0 w-full h-full -rotate-90 pointer-events-none');
   
-  const circleBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  circleBg.setAttribute('cx', '50%'); circleBg.setAttribute('cy', '50%'); circleBg.setAttribute('r', '44%');
-  circleBg.setAttribute('fill', 'none'); circleBg.setAttribute('stroke', 'rgba(255,255,255,0.6)'); circleBg.setAttribute('stroke-width', '24');
-  circleBg.setAttribute('stroke-linecap', 'round');
-
   const circleProgress = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  circleProgress.setAttribute('cx', '50%'); circleProgress.setAttribute('cy', '50%'); circleProgress.setAttribute('r', '44%');
-  circleProgress.setAttribute('fill', 'none'); circleProgress.setAttribute('stroke', '#E5E5E5');
-  circleProgress.setAttribute('stroke-width', '24'); circleProgress.setAttribute('stroke-dasharray', '276%');
-  circleProgress.setAttribute('stroke-dashoffset', '276%'); circleProgress.setAttribute('stroke-linecap', 'round');
-  circleProgress.setAttribute('class', 'progress-transition');
+  circleProgress.setAttribute('cx', '50%'); circleProgress.setAttribute('cy', '50%'); 
+  circleProgress.setAttribute('r', '46%');
+  circleProgress.setAttribute('fill', 'none'); 
+  circleProgress.setAttribute('stroke', '#3b82f6');
+  circleProgress.setAttribute('stroke-width', '16'); 
+  circleProgress.setAttribute('stroke-dasharray', '289%');
+  circleProgress.setAttribute('stroke-dashoffset', '289%'); 
+  circleProgress.setAttribute('stroke-linecap', 'round');
+  circleProgress.setAttribute('class', 'transition-all duration-300 ease-out');
   
-  svg.appendChild(circleBg); svg.appendChild(circleProgress); gameArea.appendChild(svg);
+  svg.appendChild(circleProgress); 
+  gameArea.appendChild(svg);
 
-  const handIcon = el('div', 'text-8xl md:text-[160px] transition-transform duration-200 pointer-events-none drop-shadow-xl z-20');
+  const handIcon = el('div', 'text-7xl sm:text-8xl md:text-[140px] pointer-events-none drop-shadow-xl z-20 transition-transform duration-300');
   handIcon.textContent = '🖐️';
   gameArea.appendChild(handIcon);
 
   const germs: HTMLElement[] = [];
   const totalGerms = 8;
   for(let i=0; i<totalGerms; i++) {
-    const germ = el('div', 'absolute text-4xl pointer-events-none z-30 transition-all');
+    const germ = el('div', 'absolute text-3xl sm:text-4xl md:text-5xl pointer-events-none z-30 transition-transform duration-300');
     germ.textContent = '🦠';
     const angle = Math.random() * Math.PI * 2;
-    const radius = 60 + Math.random() * 70;
-    germ.style.transform = `translate(\${Math.cos(angle)*radius}px, \${Math.sin(angle)*radius}px)`;
+    // Scale germ radius down so they don't overflow the 260px container
+    const radius = 50 + Math.random() * 50;
+    germ.style.transform = `translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px)`;
     germ.dataset.removed = "false";
     germs.push(germ);
     gameArea.appendChild(germ);
@@ -169,96 +85,118 @@ export function renderHygiene(): HTMLElement {
   const bubblesContainer = el('div', 'absolute inset-0 pointer-events-none overflow-hidden rounded-full z-40');
   gameArea.appendChild(bubblesContainer);
   gameAreaWrapper.appendChild(gameArea);
-  container.appendChild(gameAreaWrapper);
+  gameWrapper.appendChild(gameAreaWrapper);
 
-  // Bottom Area
-  const bottomArea = el('div', 'w-full max-w-md bg-white rounded-[30px] p-6 shadow-xl border-b-8 border-gray-200 z-10 flex flex-col gap-4 mb-4');
+  // Bottom Stats Area
+  const bottomArea = el('div', 'w-full max-w-lg bg-white/95 backdrop-blur-xl rounded-[32px] p-6 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] border border-white z-10 flex flex-col gap-4 mb-4 sm:mb-8');
   
-  const instrCard = el('div', 'bg-[#E0F6FF] text-[#1CB0F6] font-bold text-xl p-4 rounded-2xl text-center animate-pulse border-2 border-[#1CB0F6]/20');
-  instrCard.textContent = 'ถูมือไปมาเพื่อล้างเชื้อโรค!';
-  
-  const statsRow = el('div', 'flex justify-between items-center px-2');
-  const germCountLabel = el('span', 'text-lg font-bold text-gray-600');
-  germCountLabel.textContent = `🦠 เชื้อโรคเหลือ: \${totalGerms} ตัว`;
-  const xpBadge = el('span', 'text-lg font-bold text-[#FF9600] flex items-center gap-1');
-  xpBadge.textContent = '⭐ +50 XP';
+  const statsRow = el('div', 'flex justify-center items-center px-4 mt-2');
+  const germCountLabel = el('span', 'text-lg font-bold text-gray-600 flex items-center gap-2');
+  germCountLabel.textContent = `🦠 เชื้อโรคเหลือ: ${totalGerms}`;
   
   statsRow.appendChild(germCountLabel);
-  statsRow.appendChild(xpBadge);
-
-  const xpProgressContainer = el('div', 'h-4 w-full bg-gray-100 rounded-full overflow-hidden');
-  const xpProgressBar = el('div', 'h-full bg-[#FF9600] rounded-full transition-all duration-300 w-0');
-  xpProgressContainer.appendChild(xpProgressBar);
-  
-  bottomArea.appendChild(instrCard);
   bottomArea.appendChild(statsRow);
-  bottomArea.appendChild(xpProgressContainer);
-  container.appendChild(bottomArea);
+
+  gameWrapper.appendChild(bottomArea);
 
   const state = { cleanliness: 0, isComplete: false, lastX: 0, lastY: 0 };
+  let cleanSpeed = 1.5;
+  let maxClean = 100;
+  let currentChoiceId = 1;
+
+  const choicesEl = renderHygieneChoices((choice: HygieneChoice) => {
+    choicesEl.remove();
+    currentChoiceId = choice.id;
+    let instrText = 'ถูมือไปมาบนวงกลมเพื่อล้างเชื้อโรคออกให้หมด!';
+    
+    if (choice.id === 1) { cleanSpeed = 0.8; maxClean = 100; }
+    else if (choice.id === 2) { cleanSpeed = 2.5; maxClean = 100; instrText = 'ถูเจลให้ทั่วมืออย่างรวดเร็ว!'; }
+    else if (choice.id === 3) { cleanSpeed = 6.0; maxClean = 100; instrText = 'แตะหรือถูเพื่อพ่นสเปรย์ฆ่าเชื้อ!'; }
+    else if (choice.id === 4) { cleanSpeed = 1.5; maxClean = 50; }
+    else if (choice.id === 5) { cleanSpeed = 2.0; maxClean = 70; }
+    
+    if (choice.id === 6) {
+      maxClean = 0;
+      state.isComplete = true;
+      progressText.textContent = '0% สะอาด!';
+      progressText.style.color = '#ef4444';
+      showCompletionModal();
+    } else {
+      import('../components/UI').then(({ showObjective }) => {
+        showObjective('🖐️', 'ภารกิจล้างมือ', instrText, 'เริ่มเลย! 🚀', () => {
+          gameWrapper.style.display = 'flex';
+        });
+      });
+    }
+  });
+  container.appendChild(choicesEl);
+  container.appendChild(gameWrapper);
 
   const createInteractBubble = (x: number, y: number) => {
-    const bubble = el('div', 'absolute bg-blue-100/80 rounded-full border border-white backdrop-blur-sm shadow-sm');
-    const size = 15 + Math.random() * 35;
-    bubble.style.width = `\${size}px`; bubble.style.height = `\${size}px`;
+    const bubble = el('div', 'absolute bg-white/80 rounded-full shadow-sm pointer-events-none');
+    const size = 15 + Math.random() * 30;
+    bubble.style.width = `${size}px`; 
+    bubble.style.height = `${size}px`;
     const rect = gameArea.getBoundingClientRect();
-    bubble.style.left = `\${x - rect.left - size/2}px`; bubble.style.top = `\${y - rect.top - size/2}px`;
+    bubble.style.left = `${x - rect.left - size/2}px`; 
+    bubble.style.top = `${y - rect.top - size/2}px`;
     bubblesContainer.appendChild(bubble);
     bubble.animate([
       { transform: 'translate(0, 0) scale(1)', opacity: 0.9 },
-      { transform: `translate(\${(Math.random()-0.5)*120}px, -150px) scale(1.8)`, opacity: 0 }
-    ], { duration: 800 + Math.random() * 800, easing: 'ease-out' }).onfinish = () => bubble.remove();
+      { transform: `translate(${(Math.random()-0.5)*100}px, -150px) scale(1.5)`, opacity: 0 }
+    ], { duration: 600 + Math.random() * 600, easing: 'ease-out' }).onfinish = () => bubble.remove();
   };
 
   const getProgressColor = (percent: number) => {
-    if (percent < 40) return '#AFAFAF';
-    if (percent < 80) return '#1CB0F6';
-    return '#58CC02';
+    if (percent < 40) return '#94a3b8'; // slate-400
+    if (percent < 80) return '#3b82f6'; // blue-500
+    return '#22c55e'; // green-500
   };
 
   const handleWash = (x: number, y: number) => {
     if (state.isComplete) return;
-    const dx = x - state.lastX; const dy = y - state.lastY;
+    const dx = x - state.lastX; 
+    const dy = y - state.lastY;
     const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist > 3) {
-      state.cleanliness = Math.min(100, state.cleanliness + 2);
-      state.lastX = x; state.lastY = y;
+    
+    if (dist > 5 || currentChoiceId === 3) {
+      state.cleanliness = Math.min(maxClean, state.cleanliness + cleanSpeed);
+      state.lastX = x; 
+      state.lastY = y;
       
       const percent = state.cleanliness;
-      progressText.textContent = `\${Math.floor(percent)}% สะอาด!`;
+      progressText.textContent = `${Math.floor(percent)}% สะอาด!`;
+      progressText.style.color = getProgressColor(percent);
       
-      const offset = 276 - (percent / 100) * 276;
-      circleProgress.setAttribute('stroke-dashoffset', `\${offset}%`);
+      const offset = 289 - (percent / 100) * 289;
+      circleProgress.setAttribute('stroke-dashoffset', `${offset}%`);
       circleProgress.setAttribute('stroke', getProgressColor(percent));
       
-      xpProgressBar.style.width = `\${percent}%`;
-      
-      handIcon.style.transform = `scale(\${1 + (Math.sin(percent/5) * 0.05)})`;
+      handIcon.style.transform = `scale(${1 + (Math.sin(percent/3) * 0.08)})`;
 
-      if (Math.random() > 0.5) createInteractBubble(x, y);
+      if (Math.random() > 0.6) createInteractBubble(x, y);
 
       const germsToKeep = Math.ceil(totalGerms * (1 - percent/100));
-      germCountLabel.textContent = `🦠 เชื้อโรคเหลือ: \${germsToKeep} ตัว`;
+      germCountLabel.textContent = `🦠 เชื้อโรคเหลือ: ${germsToKeep}`;
       
       let removedCount = 0;
       germs.forEach((g) => {
         if (g.dataset.removed === "false" && removedCount < (totalGerms - germsToKeep)) {
           g.dataset.removed = "true";
-          g.classList.add('germ-explode');
+          g.style.transform = `${g.style.transform} scale(2)`;
+          g.style.opacity = '0';
           SoundManager.pop();
           removedCount++;
         }
       });
 
-      if (percent >= 100) {
+      if (percent >= maxClean && maxClean > 0) {
         state.isComplete = true;
-        handIcon.style.transform = 'scale(1)';
+        handIcon.style.transform = 'scale(1.1)';
+        handIcon.style.filter = 'drop-shadow(0 0 30px rgba(74, 222, 128, 0.8))';
         SoundManager.fanfare();
-        handIcon.textContent = '✨🖐️✨';
-        handIcon.classList.add('animate-bounce');
-        circleProgress.setAttribute('stroke', '#58CC02');
-        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#1CB0F6', '#58CC02', '#FFCB08', '#FFFFFF'] });
-        setTimeout(() => showCompletionModal(), 1200);
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#3b82f6', '#22c55e', '#f59e0b', '#ffffff'] });
+        setTimeout(() => showCompletionModal(), 1500);
       }
     }
   };
@@ -273,55 +211,61 @@ export function renderHygiene(): HTMLElement {
   gameArea.addEventListener('touchmove', (e) => { if (isWashing) handleWash(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, {passive: false});
 
   const showCompletionModal = () => {
-    const modalBg = el('div', 'fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 transition-opacity duration-500');
+    const modalBg = el('div', 'fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 opacity-0 transition-opacity duration-500');
     
-    for (let i = 0; i < 20; i++) {
-        const star = el('div', 'absolute text-yellow-300 text-2xl z-40');
-        star.textContent = '✨';
-        star.style.left = `\${10 + Math.random() * 80}%`;
-        star.style.top = `\${10 + Math.random() * 80}%`;
-        star.style.animation = `floatUp \${2 + Math.random() * 3}s linear infinite`;
-        star.style.animationDelay = `\${Math.random() * 2}s`;
-        modalBg.appendChild(star);
-    }
-
-    const card = el('div', 'bg-white rounded-[40px] p-8 max-w-sm w-full text-center shadow-2xl border-b-8 border-gray-200 transform scale-75 opacity-0 transition-all duration-500 flex flex-col items-center z-50 relative overflow-hidden');
+    const card = el('div', 'bg-white rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl transform scale-90 opacity-0 transition-all duration-500 flex flex-col items-center border border-white relative overflow-hidden');
     
-    const cardDecor = el('div', 'absolute -top-10 -right-10 w-32 h-32 bg-[#FFCB08]/20 rounded-full blur-xl');
-    card.appendChild(cardDecor);
-
-    const starsContainer = el('div', 'flex gap-2 mb-6');
+    const starsContainer = el('div', 'flex gap-3 mb-6');
     for(let i=0; i<3; i++) {
-        const star = el('div', 'text-6xl text-[#FFCB08] drop-shadow-md opacity-0');
+        const star = el('div', 'text-6xl drop-shadow-md transition-all duration-300 opacity-0 transform translate-y-4');
         star.textContent = '⭐';
         starsContainer.appendChild(star);
         setTimeout(() => {
-            star.classList.add('star-anim');
+            star.classList.remove('opacity-0', 'translate-y-4');
+            star.classList.add('scale-110');
+            setTimeout(() => star.classList.remove('scale-110'), 200);
             SoundManager.pop();
         }, 300 + (i * 200));
     }
 
-    const mTitle = el('h2', 'text-4xl font-black text-[#58CC02] mb-2 glowing-text mt-4', 'สะอาด 100%!');
-    const xpReward = el('div', 'text-2xl font-bold text-[#FF9600] mb-8 mt-4 bg-[#FF9600]/10 px-6 py-2 rounded-full border-2 border-[#FF9600]/20 inline-block', '+50 XP ✨');
+    const mTitle = el('h2', 'font-["Baloo_2"] text-4xl font-extrabold text-green-500 mb-8', `สะอาด ${Math.floor(state.cleanliness)}%!`);
     
     const btn = Button({
-      text: 'ไปกันเลย! 🛒',
+      text: 'ไปเลือกอาหารกัน! 🛒',
       variant: 'primary',
-      className: 'w-full py-5 text-2xl relative overflow-hidden group',
-      onClick: () => { store.setStage('03_Supermarket'); }
+      className: 'w-full py-4 text-2xl font-bold rounded-2xl bg-gradient-to-r from-blue-500 to-blue-400 text-white shadow-lg hover:shadow-blue-500/30 transition-all hover:-translate-y-1',
+      onClick: () => {
+        store.updateCleanlinessScore(state.cleanliness);
+        store.setStageScore('02_Hygiene', state.cleanliness);
+        store.setStage('03_Supermarket');
+      }
     });
-    
-    const btnEffect = el('div', 'absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300');
-    btn.appendChild(btnEffect);
 
-    card.appendChild(starsContainer); card.appendChild(mTitle); card.appendChild(xpReward); card.appendChild(btn);
-    modalBg.appendChild(card); container.appendChild(modalBg);
+    card.appendChild(starsContainer); 
+    card.appendChild(mTitle); 
+    card.appendChild(btn);
+    modalBg.appendChild(card); 
+    container.appendChild(modalBg);
     
     requestAnimationFrame(() => { 
         modalBg.classList.remove('opacity-0'); 
-        card.classList.remove('scale-75', 'opacity-0'); 
+        card.classList.remove('scale-90', 'opacity-0'); 
     });
   };
+
+  const style = el('style');
+  style.textContent = `
+    @keyframes customFloatUp {
+      0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.8; }
+      100% { transform: translateY(-100vh) scale(1.5) rotate(360deg); opacity: 0; }
+    }
+    .animate-float {
+      animation: customFloatUp 8s linear infinite;
+    }
+  `;
+  container.appendChild(style);
 
   return container;
 }
