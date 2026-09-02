@@ -283,44 +283,7 @@ export class SoundManager {
 
   // === Dynamic Background Music ===
   static playBGM(mood: string) {
-    if (!audioCtx || _isMuted || !masterGain || !musicGain) return;
-    this.stopBGM();
-
-    try {
-      currentBgmGain = audioCtx.createGain();
-      currentBgmGain.gain.value = 0.001;
-      currentBgmGain.gain.exponentialRampToValueAtTime(1.0, audioCtx.currentTime + 1.0);
-
-      bgmFilter = audioCtx.createBiquadFilter();
-      bgmFilter.type = 'lowpass';
-      bgmFilter.frequency.value = 3000;
-
-      currentBgmGain.connect(bgmFilter);
-      bgmFilter.connect(musicGain);
-
-      let freqs = [220, 277, 330]; // default A major chordish drone
-      if (mood === 'supermarket') freqs = [261.63, 329.63, 392.00]; // C major
-      else if (mood === 'stomach') freqs = [150, 200, 250]; // lower, rumbling
-      else if (mood === 'poop') freqs = [100, 150, 200]; // very low
-      
-      freqs.forEach(f => {
-        const osc = audioCtx!.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = f;
-        const lfo = audioCtx!.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.value = 0.2 + Math.random() * 0.5;
-        const lfoGain = audioCtx!.createGain();
-        lfoGain.gain.value = 5 + Math.random() * 10;
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-        
-        osc.connect(currentBgmGain!);
-        osc.start();
-        lfo.start();
-        currentBgmOscillators.push(osc, lfo);
-      });
-    } catch(e) {}
+    return;
   }
 
   /**
