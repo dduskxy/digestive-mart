@@ -213,12 +213,14 @@ export function renderHygiene(): HTMLElement {
   const showCompletionModal = () => {
     const modalBg = el('div', 'fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 opacity-0 transition-opacity duration-500');
     
-    const card = el('div', 'bg-white rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl transform scale-90 opacity-0 transition-all duration-500 flex flex-col items-center border border-white relative overflow-hidden');
+    const card = el('div', 'bg-white rounded-[32px] p-6 md:p-8 max-w-sm w-full text-center shadow-2xl transform scale-90 opacity-0 transition-all duration-500 flex flex-col items-center border border-white relative overflow-hidden');
     
-    const starsContainer = el('div', 'flex gap-3 mb-6');
+    const starsContainer = el('div', 'flex gap-3 mb-4');
+    const starsCount = state.cleanliness >= 80 ? 3 : (state.cleanliness >= 60 ? 2 : (state.cleanliness >= 40 ? 1 : 0));
     for(let i=0; i<3; i++) {
-        const star = el('div', 'text-6xl drop-shadow-md transition-all duration-300 opacity-0 transform translate-y-4');
-        star.textContent = '⭐';
+        const star = el('div', 'text-5xl md:text-6xl drop-shadow-md transition-all duration-300 opacity-0 transform translate-y-4');
+        star.textContent = i < starsCount ? '⭐' : '⬛';
+        if (i >= starsCount) star.style.filter = 'grayscale(100%) opacity(30%)';
         starsContainer.appendChild(star);
         setTimeout(() => {
             star.classList.remove('opacity-0', 'translate-y-4');
@@ -228,8 +230,20 @@ export function renderHygiene(): HTMLElement {
         }, 300 + (i * 200));
     }
 
-    const mTitle = el('h2', 'font-["Baloo_2"] text-4xl font-extrabold text-green-500 mb-8', `สะอาด ${Math.floor(state.cleanliness)}%!`);
+    const titleColor = state.cleanliness >= 80 ? 'text-green-500' : (state.cleanliness >= 50 ? 'text-orange-500' : 'text-red-500');
+    const mTitle = el('h2', `font-["Baloo_2"] text-4xl font-extrabold mb-4 ${titleColor}`, `สะอาด ${Math.floor(state.cleanliness)}%!`);
     
+    let detailText = '';
+    if (currentChoiceId === 1) detailText = 'เยี่ยมมาก! การล้างด้วยสบู่และน้ำ 20 วินาที ช่วยทำลายเกราะไขมันของเชื้อโรคและชะล้างออกได้หมดจด 100% ปลอดภัยที่สุดสำหรับการกินอาหาร 💯';
+    else if (currentChoiceId === 2) detailText = 'ดีมาก! เจลแอลกอฮอล์ช่วยฆ่าเชื้อโรคได้ 100% อย่างรวดเร็ว เหมาะพกพา แต่ถ้ามือเปื้อนคราบมัน อาจจะออกไม่หมดนะ ✨';
+    else if (currentChoiceId === 3) detailText = 'รวดเร็วทันใจ! สเปรย์แอลกอฮอล์ฆ่าเชื้อได้ไวและทำความสะอาดได้ 100% แต่ต้องฉีดให้ชุ่มพอและทั่วถึงทุกซอกนิ้ว 💦';
+    else if (currentChoiceId === 4) detailText = 'ระวัง! การล้างน้ำเปล่าชะล้างฝุ่นออกได้บ้าง แต่ไม่สามารถทำลายเชื้อโรคที่เกาะติดผิวได้ ทำให้มือสะอาดได้เพียง 50% เท่านั้น ⚠️';
+    else if (currentChoiceId === 5) detailText = 'พอใช้ได้! ทิชชูเปียกช่วยเช็ดคราบเปื้อนออกได้ดี แต่ไม่สามารถฆ่าเชื้อโรคฝังแน่นได้ทั้งหมด ทำให้สะอาดสูงสุดที่ 70% 🧻';
+    else if (currentChoiceId === 6) detailText = 'อันตราย! การไม่ล้างมือเลย ทำให้เชื้อโรคทุกตัวพร้อมเข้าสู่ร่างกายผ่านอาหารที่คุณหยิบจับ เสี่ยงท้องเสียสูงมาก! 🦠';
+
+    const descBox = el('p', 'text-gray-600 text-sm md:text-base mb-6 leading-relaxed font-medium bg-blue-50/80 p-4 rounded-xl border border-blue-100 text-left');
+    descBox.textContent = detailText;
+
     const btn = Button({
       text: 'ไปเลือกอาหารกัน! 🛒',
       variant: 'primary',
@@ -242,7 +256,8 @@ export function renderHygiene(): HTMLElement {
     });
 
     card.appendChild(starsContainer); 
-    card.appendChild(mTitle); 
+    card.appendChild(mTitle);
+    card.appendChild(descBox);
     card.appendChild(btn);
     modalBg.appendChild(card); 
     container.appendChild(modalBg);
