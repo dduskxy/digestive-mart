@@ -299,6 +299,7 @@ export function renderSummaryReport(): HTMLElement {
           <p class="text-slate-500 font-medium">ตอบคำถามถูกต้องทั้งหมด</p>
         </div>
       `;
+      SoundManager.levelUp();
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, zIndex: 100 });
       return;
     }
